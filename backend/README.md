@@ -6,7 +6,7 @@ Spring Boot 3 模块化单体(按功能分包)。设计见
 `../docs/superpowers/plans/2026-06-05-backend-api.md`。
 
 ## 技术栈
-Java 17(GraalVM 21.3.3)、Spring Boot 3.3.5、Spring Data JPA、Spring Security
+Java 21(Temurin 21 LTS)、Spring Boot 3.3.5、Spring Data JPA、Spring Security
 (OAuth2 资源服务器 / JWT)、Flyway 10(MariaDB + Oracle 厂商拆分迁移)、
 springdoc-openapi 2.6、JUnit 5 + Testcontainers。
 
@@ -23,15 +23,15 @@ springdoc-openapi 2.6、JUnit 5 + Testcontainers。
    GRANT ALL PRIVILEGES ON cim_portal.* TO 'cim_portal'@'127.0.0.1';
    FLUSH PRIVILEGES;
    ```
-2. 启动(JDK 17 必须):
+2. 启动(JDK 21 必须;mise 已在 backend/.mise.toml 锁定 temurin-21):
    ```bash
-   export JAVA_HOME=/home/shane/.local/share/mise/installs/java/graalvm-21.3.3+java17
+   export JAVA_HOME=/home/shane/.local/share/mise/installs/java/temurin-21
    export PATH=$JAVA_HOME/bin:$PATH
-   SPRING_PROFILES_ACTIVE=dev mvn spring-boot:run
-   # 或:mvn -DskipTests package && SPRING_PROFILES_ACTIVE=dev java -XX:-UseContainerSupport -jar target/portal.jar
+   mvn spring-boot:run
+   # 或:mvn -DskipTests package && java -jar target/portal.jar
    ```
-   > 注:本机 GraalVM 21.3(JDK17)的 cgroup 探测有 NPE bug。`mvn spring-boot:run` 与
-   > `mvn test` 已在 pom 中配置 `-XX:-UseContainerSupport`;**直接 `java -jar` 时必须手动加该 JVM 参数**。
+   > profile 由当前分支自动选择(见下节);在 dev 分支上无需 `SPRING_PROFILES_ACTIVE`。
+   > 若未启用钩子,可显式指定:`SPRING_PROFILES_ACTIVE=dev mvn spring-boot:run`。
 3. 取 mock 令牌(仅 dev):`GET http://localhost:8080/dev/token?employeeId=ADMIN1`
    预置身份:OP1 / ENG1 / QA1 / ADMIN1。
 4. 调用:`curl -H "Authorization: Bearer <token>" http://localhost:8080/api/portal/home`
@@ -40,7 +40,7 @@ springdoc-openapi 2.6、JUnit 5 + Testcontainers。
 
 ## 测试
 ```bash
-export JAVA_HOME=/home/shane/.local/share/mise/installs/java/graalvm-21.3.3+java17
+export JAVA_HOME=/home/shane/.local/share/mise/installs/java/temurin-21
 export PATH=$JAVA_HOME/bin:$PATH
 mvn test
 ```

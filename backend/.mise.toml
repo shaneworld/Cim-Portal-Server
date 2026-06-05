@@ -1,2 +1,2 @@
 [tools]
-java = "graalvm-21.3.3+java17"
+java = "temurin-21.0.0+35.0.LTS"
