@@ -21,7 +21,14 @@ public class Link {
     @CreationTimestamp @Column(name = "created_at", updatable = false) private Instant createdAt;
     @UpdateTimestamp @Column(name = "updated_at") private Instant updatedAt;
 
-    public Link() { }
+    protected Link() { }
+
+    public Link(String code, String nameZh, String nameEn, String url, String icon,
+                String categoryCode, String statusCode, int sortOrder, boolean openInNewTab) {
+        this.code = code; this.nameZh = nameZh; this.nameEn = nameEn; this.url = url;
+        this.icon = icon; this.categoryCode = categoryCode; this.statusCode = statusCode;
+        this.sortOrder = sortOrder; this.openInNewTab = openInNewTab;
+    }
 
     public Long getId() { return id; }
     public String getCode() { return code; }

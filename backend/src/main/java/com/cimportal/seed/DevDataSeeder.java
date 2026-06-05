@@ -80,9 +80,6 @@ public class DevDataSeeder implements ApplicationRunner {
 
     private Link save(String code, String zh, String en, String url, String icon,
                       String cat, String status, int sort) {
-        Link l = new Link();
-        l.setCode(code); l.setNameZh(zh); l.setNameEn(en); l.setUrl(url); l.setIcon(icon);
-        l.setCategoryCode(cat); l.setStatusCode(status); l.setSortOrder(sort); l.setOpenInNewTab(true);
-        return links.save(l);
+        return links.save(new Link(code, zh, en, url, icon, cat, status, sort, true));
     }
 }
