@@ -51,6 +51,21 @@ mvn test
 - `uat`:Oracle + 真实 OIDC,运行演示种子(外部 user_info 同步源不可用)。需要 `DB_URL`、`DB_USER`、`DB_PASSWORD`、`OIDC_ISSUER_URI`。
 - `prod`:Oracle + 真实 OIDC,springdoc 关闭。需要同上环境变量。
 
+## 按分支自动选择 Profile(无需手动指定)
+分支与 profile 的映射:`dev → dev`、`hotfix → uat`、`release → prod`(其他分支默认 `dev`)。
+
+机制:`.githooks/post-checkout` 在切换分支时,把对应 profile 写入
+`backend/config/application.yml`(已 gitignore)。Spring Boot 会自动从工作目录的 `./config/`
+加载该文件,因此在 `backend/` 下用 `mvn spring-boot:run` 或 `java -jar` 启动时**自动**选中
+对应 profile,无需 `SPRING_PROFILES_ACTIVE`。该文件不提交,分支间合并不会冲突;测试用
+`@ActiveProfiles("test")`,不受影响。
+
+**克隆后一次性启用**(每个 clone 各做一次,因 `core.hooksPath` 是本地配置):
+```bash
+sh setup-hooks.sh        # = git config core.hooksPath .githooks,并立即生成当前分支的覆盖文件
+```
+之后 `git checkout dev|hotfix|release` 即自动切换 profile。
+
 ## 安全说明
 - JWT 仅做认证(sub=employeeId);部门/角色/管理员身份来自 `user_info` 表(prod 外部同步,dev/uat 模拟),不取自令牌。
 - `/api/admin/**` 需要 `PORTAL_ADMIN` 角色;`/api/portal/**` 需要已认证用户,停用/未配置用户由 `CurrentUserService.require()` 拒绝(403/404)。
