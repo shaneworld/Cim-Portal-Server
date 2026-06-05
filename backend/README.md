@@ -28,8 +28,10 @@ springdoc-openapi 2.6、JUnit 5 + Testcontainers。
    export JAVA_HOME=/home/shane/.local/share/mise/installs/java/graalvm-21.3.3+java17
    export PATH=$JAVA_HOME/bin:$PATH
    SPRING_PROFILES_ACTIVE=dev mvn spring-boot:run
-   # 或:mvn -DskipTests package && SPRING_PROFILES_ACTIVE=dev java -jar target/portal.jar
+   # 或:mvn -DskipTests package && SPRING_PROFILES_ACTIVE=dev java -XX:-UseContainerSupport -jar target/portal.jar
    ```
+   > 注:本机 GraalVM 21.3(JDK17)的 cgroup 探测有 NPE bug。`mvn spring-boot:run` 与
+   > `mvn test` 已在 pom 中配置 `-XX:-UseContainerSupport`;**直接 `java -jar` 时必须手动加该 JVM 参数**。
 3. 取 mock 令牌(仅 dev):`GET http://localhost:8080/dev/token?employeeId=ADMIN1`
    预置身份:OP1 / ENG1 / QA1 / ADMIN1。
 4. 调用:`curl -H "Authorization: Bearer <token>" http://localhost:8080/api/portal/home`

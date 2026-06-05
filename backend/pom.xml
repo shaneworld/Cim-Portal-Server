@@ -48,7 +48,22 @@
   <build>
     <finalName>portal</finalName>
     <plugins>
-      <plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId></plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <!-- GraalVM 21.3(JDK17)在本机 cgroup 探测有 NPE bug;关闭容器支持以彻底避免 -->
+          <jvmArguments>-XX:-UseContainerSupport</jvmArguments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- 同上:测试 fork 的 JVM 也关闭容器支持,避免 cgroup 探测 NPE -->
+          <argLine>-XX:-UseContainerSupport</argLine>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
