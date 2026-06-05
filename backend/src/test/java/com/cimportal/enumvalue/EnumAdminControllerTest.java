@@ -48,6 +48,14 @@ class EnumAdminControllerTest extends MariaDbIntegrationTest {
     }
 
     @Test
+    void invalidCategoryPath_returnsStructured400() throws Exception {
+        String admin = "Bearer " + jwts.bearerFor("ADMIN1");
+        mvc.perform(get("/api/admin/enums/BOGUS").header("Authorization", admin))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+    }
+
+    @Test
     void nonAdminForbidden_anonymousUnauthorized() throws Exception {
         String op = "Bearer " + jwts.bearerFor("OP1");
         String body = "{\"code\":\"X\",\"labelZh\":\"x\",\"labelEn\":\"x\",\"sortOrder\":0}";

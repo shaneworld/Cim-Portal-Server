@@ -7,6 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,6 +25,12 @@ public class GlobalExceptionHandler {
         var fields = ex.getBindingResult().getFieldErrors().stream()
             .map(f -> new ApiError.FieldError(f.getField(), f.getDefaultMessage())).toList();
         return build(ErrorCode.VALIDATION_FAILED, "请求体校验失败", req, fields);
+    }
+
+    // 路径/查询参数类型不匹配(如非法的枚举类别 /api/admin/enums/BOGUS)→ 结构化 400,而非默认 500
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
+        return build(ErrorCode.VALIDATION_FAILED, "参数 '" + ex.getName() + "' 取值非法", req, List.of());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
