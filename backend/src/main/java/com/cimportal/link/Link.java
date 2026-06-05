@@ -21,7 +21,7 @@ public class Link {
     @CreationTimestamp @Column(name = "created_at", updatable = false) private Instant createdAt;
     @UpdateTimestamp @Column(name = "updated_at") private Instant updatedAt;
 
-    protected Link() { }
+    public Link() { }
 
     public Long getId() { return id; }
     public String getCode() { return code; }
