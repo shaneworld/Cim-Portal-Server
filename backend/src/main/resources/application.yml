@@ -1,6 +1,12 @@
 spring:
   application:
     name: cim-portal
+  autoconfigure:
+    exclude:
+      # GraalVM 21.3(JDK17)在本机容器化 cgroup 下,ProcessorMetrics 会触发 NPE。
+      # 这是运行 JVM 环境问题(非业务逻辑),全局禁用该 actuator 系统指标自配置:
+      # 仅去掉系统级指标,健康检查与全部业务功能不受影响。所有 profile 生效。
+      - org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
   jpa:
     open-in-view: false
     hibernate:
@@ -87,11 +93,6 @@ spring:
   config:
     activate:
       on-profile: test
-  autoconfigure:
-    exclude:
-      # TODO: GraalVM-21.3-in-container metrics NPE workaround (test only). If dev/uat/prod
-      # ever run on GraalVM native image, verify SystemMetricsAutoConfiguration there too.
-      - org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
 app:
   security:
     mode: dev-jwt
