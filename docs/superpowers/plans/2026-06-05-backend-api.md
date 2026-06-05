@@ -8,13 +8,13 @@
 
 **Tech Stack:** Java 17、Spring Boot 3.3.5、Spring Data JPA、Spring Security(OAuth2 Resource Server / JWT)、Flyway 10(+flyway-mysql)、MariaDB(dev)/ Oracle(uat,prod)、springdoc-openapi 2.6、JUnit 5 + Testcontainers(mariadb、oracle-free)+ spring-security-test、Maven。
 
-**契约来源:** `docs/api/api-reference.md`(权威 API 契约)与 `docs/superpowers/specs/2026-06-05-cims-portal-design.md`(设计)。
+**契约来源:** `docs/api/api-reference.md`(权威 API 契约)与 `docs/superpowers/specs/2026-06-05-cim-portal-design.md`(设计)。
 
 ---
 
 ## 文件结构
 
-所有路径相对仓库根 `cims-portal/`。
+所有路径相对仓库根 `cim-portal-server/`。
 
 ```
 backend/
@@ -131,7 +131,7 @@ Expected: 输出 `Hello from Docker!`。若所在环境无法装系统 Docker,�
 - [ ] **Step 4: 提交版本锁定**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/.mise.toml
 git commit -m "build: 锁定后端 JDK 为 temurin-17"
 ```
@@ -329,7 +329,7 @@ class CimPortalApplicationTests {
 
 Run:
 ```bash
-cd /home/shane/Code/cims-portal/backend
+cd /home/shane/Code/cim-portal/cim-portal-server/backend
 mvn -q -DskipTests compile
 ```
 Expected: `BUILD SUCCESS`。
@@ -337,7 +337,7 @@ Expected: `BUILD SUCCESS`。
 - [ ] **Step 6: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/pom.xml backend/src
 git commit -m "build: Spring Boot 3 后端脚手架与三环境 profile"
 ```
@@ -421,7 +421,7 @@ CREATE TABLE user_info (
 - [ ] **Step 2: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/resources/db/migration/mariadb
 git commit -m "feat(db): MariaDB 架构迁移 V1"
 ```
@@ -544,7 +544,7 @@ class OracleMigrationTest {
 
 Run:
 ```bash
-cd /home/shane/Code/cims-portal/backend
+cd /home/shane/Code/cim-portal/cim-portal-server/backend
 mvn -q -Dtest=OracleMigrationTest test
 ```
 Expected: PASS(首次拉取 Oracle 镜像较慢,数分钟)。若失败且报方言语法,修正 `oracle/V1__schema.sql` 后重跑。
@@ -552,7 +552,7 @@ Expected: PASS(首次拉取 Oracle 镜像较慢,数分钟)。若失败且报方�
 - [ ] **Step 4: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/resources/db/migration/oracle backend/src/test/java/com/cimportal/migration
 git commit -m "feat(db): Oracle 架构迁移 V1 + Testcontainers 验证"
 ```
@@ -730,7 +730,7 @@ class EnumValueRepositoryTest extends MariaDbIntegrationTest {
 
 Run:
 ```bash
-cd /home/shane/Code/cims-portal/backend
+cd /home/shane/Code/cim-portal/cim-portal-server/backend
 mvn -q -Dtest=EnumValueRepositoryTest test
 ```
 Expected: PASS(Hibernate `ddl-auto=validate` 对照 MariaDB 迁移校验实体映射;若字段不匹配会报错 → 修正实体或迁移)。
@@ -738,7 +738,7 @@ Expected: PASS(Hibernate `ddl-auto=validate` 对照 MariaDB 迁移校验实体�
 - [ ] **Step 6: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/test/java/com/cimportal/support backend/src/main/java/com/cimportal/enumvalue backend/src/test/java/com/cimportal/enumvalue backend/src/main/resources/application.yml
 git commit -m "feat(enum): EnumValue 实体/仓储 + MariaDB 集成测试基类"
 ```
@@ -922,7 +922,7 @@ Expected: PASS。
 - [ ] **Step 5: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/link backend/src/test/java/com/cimportal/link
 git commit -m "feat(link): Link/LinkAccessGrant 实体与仓储(级联删除)"
 ```
@@ -1074,7 +1074,7 @@ Expected: PASS。
 - [ ] **Step 5: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/label backend/src/main/java/com/cimportal/user backend/src/test/java/com/cimportal/label
 git commit -m "feat: Label 与 UserInfo 实体/仓储"
 ```
@@ -1203,7 +1203,7 @@ Expected: `BUILD SUCCESS`。(此处属基础设施,行为将在后续控制器�
 - [ ] **Step 4: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/common/error
 git commit -m "feat(common): 统一错误契约与全局异常处理"
 ```
@@ -1446,7 +1446,7 @@ Expected: `BUILD SUCCESS`(安全行为将在 Task 13 集成测试覆盖)。
 - [ ] **Step 7: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/auth backend/src/test/java/com/cimportal/support/TestJwts.java
 git commit -m "feat(auth): OIDC 资源服务器 + user_info 权限解析 + dev mock 令牌"
 ```
@@ -1703,7 +1703,7 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/enumvalue backend/src/test/java/com/cimportal/enumvalue/EnumAdminControllerTest.java
 git commit -m "feat(enum): 枚举 CRUD 端点 + 鉴权与冲突测试"
 ```
@@ -1928,7 +1928,7 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/label backend/src/test/java/com/cimportal/label/LabelControllerTest.java
 git commit -m "feat(label): 标签 CRUD 与 i18n 字典端点"
 ```
@@ -2295,7 +2295,7 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/link backend/src/test/java/com/cimportal/link/LinkAdminControllerTest.java
 git commit -m "feat(link): 链接 CRUD 与白名单授权(全量替换/增删)"
 ```
@@ -2387,7 +2387,7 @@ Expected: PASS(纯单元测试,无需容器)。
 - [ ] **Step 4: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/portal/PermissionResolver.java backend/src/test/java/com/cimportal/portal/PermissionResolverTest.java
 git commit -m "feat(portal): 权限解析纯函数 + 单元测试"
 ```
@@ -2669,7 +2669,7 @@ Expected: PASS。
 - [ ] **Step 6: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/portal backend/src/main/java/com/cimportal/auth/MeResponse.java backend/src/main/java/com/cimportal/auth/MeController.java backend/src/test/java/com/cimportal/portal/HomeIntegrationTest.java
 git commit -m "feat(portal): /portal/home 权限解析端点 + /portal/me"
 ```
@@ -2782,7 +2782,7 @@ Expected: PASS。
 - [ ] **Step 4: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/user/UserInfoResponse.java backend/src/main/java/com/cimportal/user/UserAdminController.java backend/src/test/java/com/cimportal/user/UserAdminControllerTest.java
 git commit -m "feat(user): user_info 只读管理端点"
 ```
@@ -2951,7 +2951,7 @@ Expected: PASS。(若 profile 叠加困难,按 Step 2 注记改为手动调用�
 - [ ] **Step 4: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/seed backend/src/test/java/com/cimportal/seed backend/src/main/resources/application.yml
 git commit -m "feat(seed): Dev/UAT 模拟 user_info 与演示数据种子器"
 ```
@@ -3030,7 +3030,7 @@ Expected: PASS。`/v3/api-docs` 与 `/swagger-ui.html` 在 SecurityConfig 中已
 - [ ] **Step 4: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/src/main/java/com/cimportal/common/config/OpenApiConfig.java backend/src/test/java/com/cimportal/OpenApiDocsTest.java
 git commit -m "feat(docs): springdoc OpenAPI(Bearer 安全方案)"
 ```
@@ -3046,7 +3046,7 @@ git commit -m "feat(docs): springdoc OpenAPI(Bearer 安全方案)"
 
 Run:
 ```bash
-cd /home/shane/Code/cims-portal/backend
+cd /home/shane/Code/cim-portal/cim-portal-server/backend
 mvn -q test
 ```
 Expected: 全部 PASS(含 Oracle 迁移、MariaDB 集成、权限解析、各控制器、OpenAPI)。
@@ -3064,7 +3064,7 @@ GRANT ALL PRIVILEGES ON cim_portal.* TO 'cim_portal'@'127.0.0.1'; FLUSH PRIVILEG
 
 Run:
 ```bash
-cd /home/shane/Code/cims-portal/backend
+cd /home/shane/Code/cim-portal/cim-portal-server/backend
 mvn -q -DskipTests package
 SPRING_PROFILES_ACTIVE=dev java -jar target/portal.jar
 ```
@@ -3086,7 +3086,7 @@ Expected:`/me` 返回 ADMIN1 身份(isAdmin=true);`/home` 返回演示链接(管
 ```markdown
 # CIMS 门户后端
 
-Spring Boot 3 模块化单体。详见 `../docs/superpowers/specs/2026-06-05-cims-portal-design.md`
+Spring Boot 3 模块化单体。详见 `../docs/superpowers/specs/2026-06-05-cim-portal-design.md`
 与 API 契约 `../docs/api/api-reference.md`。
 
 ## 运行(dev / MariaDB)
@@ -3107,7 +3107,7 @@ Spring Boot 3 模块化单体。详见 `../docs/superpowers/specs/2026-06-05-cim
 - [ ] **Step 6: 提交**
 
 ```bash
-cd /home/shane/Code/cims-portal
+cd /home/shane/Code/cim-portal/cim-portal-server
 git add backend/README.md
 git commit -m "docs: 后端 README 与本地运行手册"
 ```

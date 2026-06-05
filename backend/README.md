@@ -1,7 +1,7 @@
 # CIMS 门户后端
 
 Spring Boot 3 模块化单体(按功能分包)。设计见
-`../docs/superpowers/specs/2026-06-05-cims-portal-design.md`,API 契约见
+`../docs/superpowers/specs/2026-06-05-cim-portal-design.md`,API 契约见
 `../docs/api/api-reference.md`,实现计划见
 `../docs/superpowers/plans/2026-06-05-backend-api.md`。
 
