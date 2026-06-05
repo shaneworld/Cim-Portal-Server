@@ -74,3 +74,15 @@ spring:
 app:
   security:
     mode: oidc
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
+app:
+  security:
+    mode: dev-jwt
