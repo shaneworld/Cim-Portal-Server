@@ -1,6 +1,7 @@
 package com.cimportal.enumvalue;
 
 import com.cimportal.support.MariaDbIntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -9,6 +10,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EnumValueRepositoryTest extends MariaDbIntegrationTest {
 
     @Autowired EnumValueRepository repo;
+
+    @BeforeEach
+    void cleanUp() { repo.deleteAll(); }
 
     @Test
     void savesAndFindsActiveByCategoryOrdered() {

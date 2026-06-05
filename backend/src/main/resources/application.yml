@@ -82,6 +82,8 @@ spring:
       on-profile: test
   autoconfigure:
     exclude:
+      # TODO: GraalVM-21.3-in-container metrics NPE workaround (test only). If dev/uat/prod
+      # ever run on GraalVM native image, verify SystemMetricsAutoConfiguration there too.
       - org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration
 app:
   security:

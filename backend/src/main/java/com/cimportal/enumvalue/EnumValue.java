@@ -20,8 +20,8 @@ public class EnumValue {
     @Column(nullable = false, length = 64)
     private String code;
 
-    @Column(name = "label_zh", nullable = false) private String labelZh;
-    @Column(name = "label_en", nullable = false) private String labelEn;
+    @Column(name = "label_zh", nullable = false, length = 255) private String labelZh;
+    @Column(name = "label_en", nullable = false, length = 255) private String labelEn;
     @Column(name = "sort_order", nullable = false) private int sortOrder;
     @Column(nullable = false) private boolean active = true;
 
