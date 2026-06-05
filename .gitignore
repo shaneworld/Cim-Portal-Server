@@ -1,0 +1,17 @@
+# Build output
+target/
+backend/target/
+*.class
+
+# Stray extracted artifacts (do not commit)
+/com/
+/META-INF/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Logs
+*.log
