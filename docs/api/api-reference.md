@@ -184,7 +184,9 @@ Authorization: Bearer <access_token>
   ]
 }
 ```
-**错误:** `401`。
+**错误:** `401`;停用用户 → `403`(`code: USER_INACTIVE`);未配置用户(令牌 subject 在
+`user_info` 无匹配行)→ `404`(`code: USER_NOT_PROVISIONED`)。该端点经 `CurrentUserService.require()`
+做 fail-closed 鉴别。
 
 ### 3.2 获取当前用户 `GET /api/portal/me`
 合并令牌身份与 `user_info` 查得的部门/角色。
@@ -360,8 +362,10 @@ department/role),返回 **`409`(`code: IN_USE`)**,提示改为「停用」(`acti
 否则                           → 不可见
 ```
 附加约束:
-- **停用用户:** `user_info.active = false` 时,`/api/portal/me` 返回 `403`
-  (`code: USER_INACTIVE`),`/api/portal/home` 返回空结果。即停用用户登录后看不到任何链接。
+- **停用用户(fail-closed):** `user_info.active = false` 时,`/api/portal/me` 与
+  `/api/portal/home` **均**返回 `403`(`code: USER_INACTIVE`)。两个端点都经
+  `CurrentUserService.require()` 鉴别,停用/未配置用户在服务层被直接拒绝(未配置 → `404`
+  `USER_NOT_PROVISIONED`),而非返回空结果——这与安全评审的 fail-closed 决策一致。
 - **链接状态:** `statusCode` 仅用于展示(在卡片上显示状态徽标),**不影响可见性**。所有
   状态的链接(含 `DEPRECATED`)都会进入解析结果,由前端按状态决定徽标样式。
 
