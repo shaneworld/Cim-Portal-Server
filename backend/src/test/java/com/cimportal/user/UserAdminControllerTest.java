@@ -34,6 +34,28 @@ class UserAdminControllerTest extends MariaDbIntegrationTest {
     }
 
     @Test
+    void filtersUsersByDeptRoleAndQuery() throws Exception {
+        String adminToken = "Bearer " + jwts.bearerFor("ADMIN1");
+
+        // departmentCode=IT → only ADMIN1 (IT dept)
+        mvc.perform(get("/api/admin/users?departmentCode=IT").header("Authorization", adminToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].employeeId").value("ADMIN1"));
+
+        // departmentCode=IT AND roleCode=OPERATOR → AND-combined, no match (ADMIN1 is PORTAL_ADMIN)
+        mvc.perform(get("/api/admin/users?departmentCode=IT&roleCode=OPERATOR").header("Authorization", adminToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(0));
+
+        // q=OP → matches OP1 (employeeId contains "OP")
+        mvc.perform(get("/api/admin/users?q=OP").header("Authorization", adminToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].employeeId").value("OP1"));
+    }
+
+    @Test
     void operatorForbidden() throws Exception {
         mvc.perform(get("/api/admin/users").header("Authorization", "Bearer " + jwts.bearerFor("OP1")))
             .andExpect(status().isForbidden());

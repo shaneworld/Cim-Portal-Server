@@ -24,6 +24,13 @@ public class LinkService {
     public List<Link> listAll() { return links.findAllByOrderBySortOrderAscIdAsc(); }
 
     @Transactional(readOnly = true)
+    public List<Link> search(String categoryCode, String statusCode, String q) {
+        return links.search(emptyToNull(categoryCode), emptyToNull(statusCode), emptyToNull(q));
+    }
+
+    private static String emptyToNull(String s) { return (s == null || s.isBlank()) ? null : s; }
+
+    @Transactional(readOnly = true)
     public Link get(Long id) { return links.findById(id).orElseThrow(() -> ApiException.notFound("链接")); }
 
     @Transactional(readOnly = true)

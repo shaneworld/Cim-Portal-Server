@@ -14,8 +14,11 @@ public class LinkAdminController {
     public LinkAdminController(LinkService service) { this.service = service; }
 
     @GetMapping
-    public List<LinkResponse> list() {
-        return service.listAll().stream().map(l -> LinkResponse.of(l, List.of())).toList();
+    public List<LinkResponse> list(@RequestParam(required = false) String categoryCode,
+                                   @RequestParam(required = false) String statusCode,
+                                   @RequestParam(required = false) String q) {
+        return service.search(categoryCode, statusCode, q).stream()
+            .map(l -> LinkResponse.of(l, List.of())).toList();
     }
 
     @GetMapping("/{id}")

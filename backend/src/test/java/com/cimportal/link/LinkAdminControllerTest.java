@@ -34,6 +34,7 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
         users.deleteAll(); enums.deleteAll(); links.deleteAll();
         users.save(new UserInfo("ADMIN1", "管理员", "Admin", "IT", "PORTAL_ADMIN", null, true, Instant.now()));
         enums.save(new EnumValue(EnumCategory.LINK_CATEGORY, "MES", "制造执行", "MES", 1, true));
+        enums.save(new EnumValue(EnumCategory.LINK_CATEGORY, "QUALITY", "质量", "Quality", 2, true));
         enums.save(new EnumValue(EnumCategory.LINK_STATUS, "ACTIVE", "启用", "Active", 1, true));
         enums.save(new EnumValue(EnumCategory.ROLE, "OPERATOR", "操作员", "Operator", 1, true));
         admin = "Bearer " + jwts.bearerFor("ADMIN1");
@@ -60,6 +61,42 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{\"grants\":[]}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void filtersLinksByCategoryAndQuery() throws Exception {
+        // Create MES link
+        String mesBody = "{\"code\":\"mes-wip\",\"nameZh\":\"在制品\",\"nameEn\":\"WIP\"," +
+            "\"url\":\"https://mes\",\"icon\":\"factory\",\"categoryCode\":\"MES\"," +
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":10}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(mesBody))
+            .andExpect(status().isCreated());
+
+        // Create QUALITY link
+        String qualityBody = "{\"code\":\"quality-dashboard\",\"nameZh\":\"质量看板\",\"nameEn\":\"Quality Dashboard\"," +
+            "\"url\":\"https://quality\",\"icon\":\"chart\",\"categoryCode\":\"QUALITY\"," +
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":20}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(qualityBody))
+            .andExpect(status().isCreated());
+
+        // Filter by categoryCode=MES → only 1 result
+        mvc.perform(get("/api/admin/links?categoryCode=MES").header("Authorization", admin))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].code").value("mes-wip"));
+
+        // Filter by q=wip (substring match on code) → only MES link
+        mvc.perform(get("/api/admin/links?q=wip").header("Authorization", admin))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].code").value("mes-wip"));
+
+        // No filters → both results
+        mvc.perform(get("/api/admin/links").header("Authorization", admin))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test

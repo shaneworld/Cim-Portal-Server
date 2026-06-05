@@ -29,6 +29,13 @@ public class LabelService {
         return type == null ? repo.findAllByOrderByLabelKeyAsc() : repo.findByType(type);
     }
 
+    @Transactional(readOnly = true)
+    public List<Label> search(String type, String q) {
+        return repo.search(emptyToNull(type), emptyToNull(q));
+    }
+
+    private static String emptyToNull(String s) { return (s == null || s.isBlank()) ? null : s; }
+
     @Transactional
     public Label create(LabelRequest req) {
         if (repo.existsByLabelKey(req.labelKey()))

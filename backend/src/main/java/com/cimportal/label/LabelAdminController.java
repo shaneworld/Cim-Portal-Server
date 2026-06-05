@@ -14,8 +14,9 @@ public class LabelAdminController {
     public LabelAdminController(LabelService service) { this.service = service; }
 
     @GetMapping
-    public List<LabelResponse> list(@RequestParam(required = false) String type) {
-        return service.list(type).stream().map(LabelResponse::of).toList();
+    public List<LabelResponse> list(@RequestParam(required = false) String type,
+                                    @RequestParam(required = false) String q) {
+        return service.search(type, q).stream().map(LabelResponse::of).toList();
     }
 
     @PostMapping
