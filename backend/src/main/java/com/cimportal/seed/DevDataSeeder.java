@@ -3,8 +3,6 @@ package com.cimportal.seed;
 import com.cimportal.enumvalue.EnumCategory;
 import com.cimportal.enumvalue.EnumValue;
 import com.cimportal.enumvalue.EnumValueRepository;
-import com.cimportal.label.Label;
-import com.cimportal.label.LabelRepository;
 import com.cimportal.link.*;
 import com.cimportal.user.UserInfo;
 import com.cimportal.user.UserInfoRepository;
@@ -23,14 +21,13 @@ public class DevDataSeeder implements ApplicationRunner {
     private final EnumValueRepository enums;
     private final LinkRepository links;
     private final LinkAccessGrantRepository grants;
-    private final LabelRepository labels;
     private final UserInfoRepository users;
 
     public DevDataSeeder(EnumValueRepository enums, LinkRepository links,
-                         LinkAccessGrantRepository grants, LabelRepository labels,
+                         LinkAccessGrantRepository grants,
                          UserInfoRepository users) {
         this.enums = enums; this.links = links; this.grants = grants;
-        this.labels = labels; this.users = users;
+        this.users = users;
     }
 
     @Override
@@ -38,7 +35,6 @@ public class DevDataSeeder implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         if (enums.count() == 0) seedEnums();
         if (users.count() == 0) seedUsers();
-        if (labels.count() == 0) seedLabels();
         if (links.count() == 0) seedLinks();
     }
 
@@ -62,12 +58,6 @@ public class DevDataSeeder implements ApplicationRunner {
         users.save(new UserInfo("ENG1", "伊森工程", "Ethan Engineer", "FAB1-PROD", "PROCESS_ENGINEER", "eng1@example.com", true, now));
         users.save(new UserInfo("QA1", "全权质量", "Quinn Quality", "QA", "QA_ENGINEER", "qa1@example.com", true, now));
         users.save(new UserInfo("ADMIN1", "亚当管理", "Adam Admin", "IT", "PORTAL_ADMIN", "admin1@example.com", true, now));
-    }
-
-    private void seedLabels() {
-        labels.save(new Label("portal.title", "SYSTEM_NAME", "CIMS 统一门户", "CIMS Portal"));
-        labels.save(new Label("nav.dashboard", "UI_TEXT", "仪表盘", "Dashboard"));
-        labels.save(new Label("nav.admin", "UI_TEXT", "管理", "Admin"));
     }
 
     private void seedLinks() {

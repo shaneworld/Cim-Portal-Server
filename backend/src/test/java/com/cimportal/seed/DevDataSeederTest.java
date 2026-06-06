@@ -1,7 +1,6 @@
 package com.cimportal.seed;
 
 import com.cimportal.enumvalue.EnumValueRepository;
-import com.cimportal.label.LabelRepository;
 import com.cimportal.link.LinkAccessGrantRepository;
 import com.cimportal.link.LinkRepository;
 import com.cimportal.support.MariaDbIntegrationTest;
@@ -16,24 +15,22 @@ class DevDataSeederTest extends MariaDbIntegrationTest {
     @Autowired EnumValueRepository enums;
     @Autowired LinkRepository links;
     @Autowired LinkAccessGrantRepository grants;
-    @Autowired LabelRepository labels;
     @Autowired UserInfoRepository users;
 
     @BeforeEach
     void clear() {
         grants.deleteAll(); links.deleteAll();
-        enums.deleteAll(); labels.deleteAll(); users.deleteAll();
+        enums.deleteAll(); users.deleteAll();
     }
 
     @Test
     void seedsEmptyDatabaseIdempotently() throws Exception {
-        DevDataSeeder seeder = new DevDataSeeder(enums, links, grants, labels, users);
+        DevDataSeeder seeder = new DevDataSeeder(enums, links, grants, users);
 
         seeder.run(null);
         long enumCount = enums.count();
         assertThat(enumCount).isEqualTo(11);
         assertThat(users.count()).isEqualTo(4);
-        assertThat(labels.count()).isEqualTo(3);
         assertThat(links.count()).isEqualTo(3);
         assertThat(grants.count()).isEqualTo(2);
 
