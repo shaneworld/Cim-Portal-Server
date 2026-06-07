@@ -7,9 +7,12 @@ backend/target/
 /com/
 /META-INF/
 
-# IDE / OS
+# IDE / OS (IntelliJ IDEA, VS Code, macOS)
 .idea/
 *.iml
+*.ipr
+*.iws
+out/
 .vscode/
 .DS_Store
 

@@ -22,10 +22,8 @@ management:
 
 app:
   cors:
-    # 桌面 WebView 源(全环境恒定);Web 同源无需 CORS
-    allowed-origins:
-      - tauri://localhost
-      - http://tauri.localhost
+    # Web 同源部署无需 CORS;前端独立部署时在对应 profile 配置 allowed-origins
+    allowed-origins: []
 
 ---
 spring:
@@ -44,8 +42,6 @@ app:
   cors:
     allowed-origins:
       - http://localhost:5173
-      - tauri://localhost
-      - http://tauri.localhost
 
 ---
 spring:
