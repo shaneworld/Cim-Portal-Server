@@ -13,13 +13,9 @@ public final class LinkTestFactory {
         return l;
     }
 
-    public static Link newEnvLink(String nameEn, String categoryCode) {
-        Link l = new Link();
-        l.setNameZh("名"); l.setNameEn(nameEn);
-        l.setUrlDev("https://dev.x"); l.setUrlUat("https://uat.x"); l.setUrlRelease("https://x");
-        l.setIcon("factory");
-        l.setCategoryCode(categoryCode); l.setStatusCode("ACTIVE");
-        l.setSortOrder(1); l.setOpenInNewTab(true);
+    public static Link newLink(String nameEn, String categoryCode, LinkEnv env) {
+        Link l = newLink(nameEn, categoryCode);
+        l.setEnvironment(env);
         return l;
     }
 }

@@ -49,6 +49,7 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(linkBody))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.url").value("https://x"))
+            .andExpect(jsonPath("$.environment").isEmpty())
             .andReturn().getResponse().getContentAsString().replaceAll(".*\"id\":(\\d+).*", "$1");
 
         String grantsBody = "{\"grants\":[{\"grantType\":\"ROLE\",\"grantCode\":\"OPERATOR\"}]}";
@@ -64,39 +65,33 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
     }
 
     @Test
-    void createEnvAwareLinkReturns201() throws Exception {
+    void createLinkWithEnvironmentUatReturns201() throws Exception {
         String linkBody = "{\"nameZh\":\"SPC分析\",\"nameEn\":\"SPC\"," +
-            "\"urlDev\":\"https://spc-dev.example.com\"," +
-            "\"urlUat\":\"https://spc-uat.example.com\"," +
-            "\"urlRelease\":\"https://spc.example.com\"," +
+            "\"url\":\"https://spc-uat.example.com\"," +
             "\"icon\":\"chart\",\"categoryCode\":\"MES\"," +
-            "\"statusCode\":\"ACTIVE\",\"sortOrder\":5}";
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":5," +
+            "\"environment\":\"UAT\"}";
         mvc.perform(post("/api/admin/links").header("Authorization", admin)
                 .contentType(MediaType.APPLICATION_JSON).content(linkBody))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.urlDev").value("https://spc-dev.example.com"))
-            .andExpect(jsonPath("$.urlUat").value("https://spc-uat.example.com"))
-            .andExpect(jsonPath("$.urlRelease").value("https://spc.example.com"))
-            .andExpect(jsonPath("$.url").doesNotExist());
+            .andExpect(jsonPath("$.url").value("https://spc-uat.example.com"))
+            .andExpect(jsonPath("$.environment").value("UAT"));
     }
 
     @Test
-    void partialEnvUrlsReject400() throws Exception {
-        // Only one env URL provided — should fail validation
-        String bad = "{\"nameZh\":\"x\",\"nameEn\":\"x\"," +
-            "\"urlDev\":\"https://dev.x\"," +
-            "\"icon\":\"i\",\"categoryCode\":\"MES\",\"statusCode\":\"ACTIVE\",\"sortOrder\":0}";
-        mvc.perform(post("/api/admin/links").header("Authorization", admin)
-                .contentType(MediaType.APPLICATION_JSON).content(bad))
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void bothUrlAndEnvUrlsReject400() throws Exception {
-        // url + all three env URLs → invalid (XOR)
+    void createLinkWithInvalidEnvironmentRejects400() throws Exception {
         String bad = "{\"nameZh\":\"x\",\"nameEn\":\"x\"," +
             "\"url\":\"https://x\"," +
-            "\"urlDev\":\"https://dev.x\",\"urlUat\":\"https://uat.x\",\"urlRelease\":\"https://rel.x\"," +
+            "\"icon\":\"i\",\"categoryCode\":\"MES\",\"statusCode\":\"ACTIVE\",\"sortOrder\":0," +
+            "\"environment\":\"FOO\"}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(bad))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void missingUrlRejects400() throws Exception {
+        String bad = "{\"nameZh\":\"x\",\"nameEn\":\"x\"," +
             "\"icon\":\"i\",\"categoryCode\":\"MES\",\"statusCode\":\"ACTIVE\",\"sortOrder\":0}";
         mvc.perform(post("/api/admin/links").header("Authorization", admin)
                 .contentType(MediaType.APPLICATION_JSON).content(bad))
@@ -104,9 +99,9 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
     }
 
     @Test
-    void noUrlAtAllRejects400() throws Exception {
-        // Neither url nor env URLs → invalid
+    void blankUrlRejects400() throws Exception {
         String bad = "{\"nameZh\":\"x\",\"nameEn\":\"x\"," +
+            "\"url\":\"  \"," +
             "\"icon\":\"i\",\"categoryCode\":\"MES\",\"statusCode\":\"ACTIVE\",\"sortOrder\":0}";
         mvc.perform(post("/api/admin/links").header("Authorization", admin)
                 .contentType(MediaType.APPLICATION_JSON).content(bad))

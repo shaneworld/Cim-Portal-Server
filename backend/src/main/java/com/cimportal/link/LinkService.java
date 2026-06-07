@@ -41,8 +41,8 @@ public class LinkService {
 
     @Transactional
     public Link create(LinkRequest req) {
-        requireEnum(EnumCategory.LINK_CATEGORY, req.getCategoryCode());
-        requireEnum(EnumCategory.LINK_STATUS, req.getStatusCode());
+        requireEnum(EnumCategory.LINK_CATEGORY, req.categoryCode());
+        requireEnum(EnumCategory.LINK_STATUS, req.statusCode());
         Link l = new Link();
         apply(l, req);
         return links.save(l);
@@ -51,8 +51,8 @@ public class LinkService {
     @Transactional
     public Link update(Long id, LinkRequest req) {
         Link l = get(id);
-        requireEnum(EnumCategory.LINK_CATEGORY, req.getCategoryCode());
-        requireEnum(EnumCategory.LINK_STATUS, req.getStatusCode());
+        requireEnum(EnumCategory.LINK_CATEGORY, req.categoryCode());
+        requireEnum(EnumCategory.LINK_STATUS, req.statusCode());
         apply(l, req);
         return l;
     }
@@ -90,11 +90,11 @@ public class LinkService {
     }
 
     private void apply(Link l, LinkRequest req) {
-        l.setNameZh(req.getNameZh()); l.setNameEn(req.getNameEn());
-        l.setUrl(req.getUrl()); l.setIcon(req.getIcon());
-        l.setCategoryCode(req.getCategoryCode()); l.setStatusCode(req.getStatusCode());
-        l.setSortOrder(req.getSortOrder()); l.setOpenInNewTab(req.openInNewTabOrDefault());
-        l.setUrlDev(req.getUrlDev()); l.setUrlUat(req.getUrlUat()); l.setUrlRelease(req.getUrlRelease());
+        l.setNameZh(req.nameZh()); l.setNameEn(req.nameEn());
+        l.setUrl(req.url()); l.setIcon(req.icon());
+        l.setCategoryCode(req.categoryCode()); l.setStatusCode(req.statusCode());
+        l.setSortOrder(req.sortOrder()); l.setOpenInNewTab(req.openInNewTabOrDefault());
+        l.setEnvironment(req.environment());
     }
 
     private void requireEnum(EnumCategory category, String code) {

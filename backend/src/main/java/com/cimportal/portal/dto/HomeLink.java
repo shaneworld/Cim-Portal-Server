@@ -1,5 +1,7 @@
 package com.cimportal.portal.dto;
 
+import com.cimportal.link.LinkEnv;
+
 public record HomeLink(Long id, String nameZh, String nameEn,
-                       String url, String urlDev, String urlUat, String urlRelease,
-                       String icon, String statusCode, boolean openInNewTab) { }
+                       String url, String icon, String statusCode,
+                       boolean openInNewTab, LinkEnv environment) { }

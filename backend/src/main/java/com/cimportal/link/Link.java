@@ -11,15 +11,14 @@ public class Link {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Column(name = "name_zh", nullable = false, length = 255) private String nameZh;
     @Column(name = "name_en", nullable = false, length = 255) private String nameEn;
-    @Column(length = 1024) private String url;
+    @Column(nullable = false, length = 1024) private String url;
     @Column(nullable = false, length = 64) private String icon;
     @Column(name = "category_code", nullable = false, length = 64) private String categoryCode;
     @Column(name = "status_code", nullable = false, length = 64) private String statusCode;
     @Column(name = "sort_order", nullable = false) private int sortOrder;
     @Column(name = "open_in_new_tab", nullable = false) private boolean openInNewTab = true;
-    @Column(name = "url_dev", length = 1024) private String urlDev;
-    @Column(name = "url_uat", length = 1024) private String urlUat;
-    @Column(name = "url_release", length = 1024) private String urlRelease;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "environment", length = 16) private LinkEnv environment;
     @CreationTimestamp @Column(name = "created_at", updatable = false) private Instant createdAt;
     @UpdateTimestamp @Column(name = "updated_at") private Instant updatedAt;
 
@@ -41,9 +40,7 @@ public class Link {
     public String getStatusCode() { return statusCode; }
     public int getSortOrder() { return sortOrder; }
     public boolean isOpenInNewTab() { return openInNewTab; }
-    public String getUrlDev() { return urlDev; }
-    public String getUrlUat() { return urlUat; }
-    public String getUrlRelease() { return urlRelease; }
+    public LinkEnv getEnvironment() { return environment; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
@@ -55,7 +52,5 @@ public class Link {
     public void setStatusCode(String v) { this.statusCode = v; }
     public void setSortOrder(int v) { this.sortOrder = v; }
     public void setOpenInNewTab(boolean v) { this.openInNewTab = v; }
-    public void setUrlDev(String v) { this.urlDev = v; }
-    public void setUrlUat(String v) { this.urlUat = v; }
-    public void setUrlRelease(String v) { this.urlRelease = v; }
+    public void setEnvironment(LinkEnv v) { this.environment = v; }
 }

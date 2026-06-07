@@ -48,8 +48,8 @@ public class HomeService {
             if (!PermissionResolver.isVisible(user.departmentCode(), user.roleCode(), g)) continue;
             byCategory.computeIfAbsent(l.getCategoryCode(), k -> new ArrayList<>())
                 .add(new HomeLink(l.getId(), l.getNameZh(), l.getNameEn(),
-                    l.getUrl(), l.getUrlDev(), l.getUrlUat(), l.getUrlRelease(),
-                    l.getIcon(), l.getStatusCode(), l.isOpenInNewTab()));
+                    l.getUrl(), l.getIcon(), l.getStatusCode(),
+                    l.isOpenInNewTab(), l.getEnvironment()));
         }
 
         List<HomeCategory> categories = new ArrayList<>();

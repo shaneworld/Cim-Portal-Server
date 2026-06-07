@@ -74,14 +74,22 @@ class HomeIntegrationTest extends MariaDbIntegrationTest {
     }
 
     @Test
-    void homeLinkHasEnvUrlFieldsAndNoCode() throws Exception {
+    void homeLinkHasEnvironmentFieldAndNoEnvUrlFields() throws Exception {
+        // Seed a UAT-environment link
+        Link uatLink = LinkTestFactory.newLink("UAT Link", "MES", LinkEnv.UAT);
+        links.save(uatLink);
+
         mvc.perform(get("/api/portal/home").header("Authorization", "Bearer " + jwts.bearerFor("OP1")))
             .andExpect(status().isOk())
-            // url field present (plain link)
+            // url field present
             .andExpect(jsonPath("$.categories[0].links[0].url").value("https://x"))
-            // urlDev/urlUat/urlRelease present (null for plain link)
+            // environment field present (null for plain link → not serialized)
+            .andExpect(jsonPath("$.categories[0].links[0].code").doesNotExist())
+            // no legacy env-url fields
             .andExpect(jsonPath("$.categories[0].links[0].urlDev").doesNotExist())
-            // no code field
-            .andExpect(jsonPath("$.categories[0].links[0].code").doesNotExist());
+            .andExpect(jsonPath("$.categories[0].links[0].urlUat").doesNotExist())
+            .andExpect(jsonPath("$.categories[0].links[0].urlRelease").doesNotExist())
+            // UAT link carries environment value
+            .andExpect(jsonPath("$.categories[0].links[2].environment").value("UAT"));
     }
 }

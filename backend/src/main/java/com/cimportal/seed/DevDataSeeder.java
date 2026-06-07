@@ -63,38 +63,38 @@ public class DevDataSeeder implements ApplicationRunner {
     }
 
     private void seedLinks() {
-        // Plain URL links
-        Link wip = links.save(new Link("在制品管理", "WIP Management", "https://mes.example.com/wip",
-            "factory", "MES", "ACTIVE", 10, true));
+        // WIP — plain link, no environment, restricted to FAB1-PROD
+        Link wip = links.save(new Link("在制品管理", "WIP Management",
+            "https://mes.example.com/wip", "factory", "MES", "ACTIVE", 10, true));
         grants.save(new LinkAccessGrant(wip.getId(), GrantType.DEPARTMENT, "FAB1-PROD"));
 
-        // Env-aware link: SPC (DEV/UAT/RELEASE URLs, no single url)
-        Link spc = new Link("SPC 分析", "SPC Analysis", null, "line-chart", "QUALITY", "ACTIVE", 20, true);
-        spc.setUrlDev("https://spc-dev.example.com");
-        spc.setUrlUat("https://spc-uat.example.com");
-        spc.setUrlRelease("https://spc.example.com");
-        spc = links.save(spc);
-        grants.save(new LinkAccessGrant(spc.getId(), GrantType.ROLE, "QA_ENGINEER"));
+        // SPC Analysis — one link per environment (no grant = visible to all QA_ENGINEER holders)
+        Link spcDev = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 20, "https://spc-dev.example.com", LinkEnv.DEV);
+        spcDev = links.save(spcDev);
+        grants.save(new LinkAccessGrant(spcDev.getId(), GrantType.ROLE, "QA_ENGINEER"));
 
-        // Env-aware link: docs portal (open to everyone)
-        Link docs = new Link("帮助文档", "Docs", null, "book", "MES", "ACTIVE", 30, true);
-        docs.setUrlDev("https://docs-dev.example.com");
-        docs.setUrlUat("https://docs-uat.example.com");
-        docs.setUrlRelease("https://docs.example.com");
-        links.save(docs);
+        Link spcUat = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 21, "https://spc-uat.example.com", LinkEnv.UAT);
+        spcUat = links.save(spcUat);
+        grants.save(new LinkAccessGrant(spcUat.getId(), GrantType.ROLE, "QA_ENGINEER"));
 
-        // More env-aware demos (open to everyone) across categories/icons
-        seedEnvLink("设备监控", "Equipment Monitoring", "gauge", "MES", 40, "mon");
-        seedEnvLink("质量看板", "Quality Dashboard", "activity", "QUALITY", 50, "qdash");
-        seedEnvLink("维护工单", "Maintenance Orders", "wrench", "MAINTENANCE", 60, "mwo");
+        Link spcRelease = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 22, "https://spc.example.com", LinkEnv.RELEASE);
+        spcRelease = links.save(spcRelease);
+        grants.save(new LinkAccessGrant(spcRelease.getId(), GrantType.ROLE, "QA_ENGINEER"));
+
+        // Docs portal — plain link (no environment), open to all
+        links.save(new Link("帮助文档", "Docs", "https://docs.example.com", "book", "MES", "ACTIVE", 30, true));
+
+        // Equipment Monitoring — plain link, open to all
+        links.save(new Link("设备监控", "Equipment Monitoring", "https://mon.example.com", "gauge", "MES", "ACTIVE", 40, true));
+
+        // Maintenance Orders — maintenance status, open to all
+        links.save(new Link("维护工单", "Maintenance Orders", "https://mwo.example.com", "wrench", "MAINTENANCE", "MAINTENANCE", 50, true));
     }
 
-    /** Save an env-aware link (DEV/UAT/RELEASE URLs, no single url; no grant = visible to all). */
-    private void seedEnvLink(String nameZh, String nameEn, String icon, String category, int sort, String slug) {
-        Link l = new Link(nameZh, nameEn, null, icon, category, "ACTIVE", sort, true);
-        l.setUrlDev("https://" + slug + "-dev.example.com");
-        l.setUrlUat("https://" + slug + "-uat.example.com");
-        l.setUrlRelease("https://" + slug + ".example.com");
-        links.save(l);
+    private Link makeEnvLink(String nameZh, String nameEn, String icon,
+                              String category, int sort, String url, LinkEnv env) {
+        Link l = new Link(nameZh, nameEn, url, icon, category, "ACTIVE", sort, true);
+        l.setEnvironment(env);
+        return l;
     }
 }
