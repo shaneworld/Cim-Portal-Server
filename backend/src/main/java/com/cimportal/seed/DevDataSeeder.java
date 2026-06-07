@@ -49,6 +49,7 @@ public class DevDataSeeder implements ApplicationRunner {
         enums.save(new EnumValue(EnumCategory.ROLE, "PORTAL_ADMIN", "门户管理员", "Portal Admin", 40, true));
         enums.save(new EnumValue(EnumCategory.LINK_CATEGORY, "MES", "制造执行", "MES", 10, true));
         enums.save(new EnumValue(EnumCategory.LINK_CATEGORY, "QUALITY", "质量", "Quality", 20, true));
+        enums.save(new EnumValue(EnumCategory.LINK_CATEGORY, "MAINTENANCE", "设备维护", "Maintenance", 30, true));
         enums.save(new EnumValue(EnumCategory.LINK_STATUS, "ACTIVE", "启用", "Active", 10, true));
         enums.save(new EnumValue(EnumCategory.LINK_STATUS, "MAINTENANCE", "维护中", "Maintenance", 20, true));
     }
@@ -81,5 +82,19 @@ public class DevDataSeeder implements ApplicationRunner {
         docs.setUrlUat("https://docs-uat.example.com");
         docs.setUrlRelease("https://docs.example.com");
         links.save(docs);
+
+        // More env-aware demos (open to everyone) across categories/icons
+        seedEnvLink("设备监控", "Equipment Monitoring", "gauge", "MES", 40, "mon");
+        seedEnvLink("质量看板", "Quality Dashboard", "activity", "QUALITY", 50, "qdash");
+        seedEnvLink("维护工单", "Maintenance Orders", "wrench", "MAINTENANCE", 60, "mwo");
+    }
+
+    /** Save an env-aware link (DEV/UAT/RELEASE URLs, no single url; no grant = visible to all). */
+    private void seedEnvLink(String nameZh, String nameEn, String icon, String category, int sort, String slug) {
+        Link l = new Link(nameZh, nameEn, null, icon, category, "ACTIVE", sort, true);
+        l.setUrlDev("https://" + slug + "-dev.example.com");
+        l.setUrlUat("https://" + slug + "-uat.example.com");
+        l.setUrlRelease("https://" + slug + ".example.com");
+        links.save(l);
     }
 }

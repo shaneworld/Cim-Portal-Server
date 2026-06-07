@@ -29,15 +29,15 @@ class DevDataSeederTest extends MariaDbIntegrationTest {
 
         seeder.run(null);
         long enumCount = enums.count();
-        assertThat(enumCount).isEqualTo(11);
+        assertThat(enumCount).isEqualTo(12);
         assertThat(users.count()).isEqualTo(4);
-        assertThat(links.count()).isEqualTo(3);
+        assertThat(links.count()).isEqualTo(6);
         assertThat(grants.count()).isEqualTo(2);
 
         // second run must be a no-op (idempotent): counts unchanged
         seeder.run(null);
         assertThat(enums.count()).isEqualTo(enumCount);
         assertThat(users.count()).isEqualTo(4);
-        assertThat(links.count()).isEqualTo(3);
+        assertThat(links.count()).isEqualTo(6);
     }
 }
