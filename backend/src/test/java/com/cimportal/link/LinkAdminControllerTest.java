@@ -41,14 +41,14 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
     }
 
     @Test
-    void createLinkThenReplaceGrants() throws Exception {
-        String linkBody = "{\"code\":\"mes-wip\",\"nameZh\":\"在制品\",\"nameEn\":\"WIP\"," +
+    void createPlainUrlLinkThenReplaceGrants() throws Exception {
+        String linkBody = "{\"nameZh\":\"在制品\",\"nameEn\":\"WIP\"," +
             "\"url\":\"https://x\",\"icon\":\"factory\",\"categoryCode\":\"MES\"," +
             "\"statusCode\":\"ACTIVE\",\"sortOrder\":10}";
         String id = mvc.perform(post("/api/admin/links").header("Authorization", admin)
                 .contentType(MediaType.APPLICATION_JSON).content(linkBody))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.code").value("mes-wip"))
+            .andExpect(jsonPath("$.url").value("https://x"))
             .andReturn().getResponse().getContentAsString().replaceAll(".*\"id\":(\\d+).*", "$1");
 
         String grantsBody = "{\"grants\":[{\"grantType\":\"ROLE\",\"grantCode\":\"OPERATOR\"}]}";
@@ -64,9 +64,59 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
     }
 
     @Test
+    void createEnvAwareLinkReturns201() throws Exception {
+        String linkBody = "{\"nameZh\":\"SPC分析\",\"nameEn\":\"SPC\"," +
+            "\"urlDev\":\"https://spc-dev.example.com\"," +
+            "\"urlUat\":\"https://spc-uat.example.com\"," +
+            "\"urlRelease\":\"https://spc.example.com\"," +
+            "\"icon\":\"chart\",\"categoryCode\":\"MES\"," +
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":5}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(linkBody))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.urlDev").value("https://spc-dev.example.com"))
+            .andExpect(jsonPath("$.urlUat").value("https://spc-uat.example.com"))
+            .andExpect(jsonPath("$.urlRelease").value("https://spc.example.com"))
+            .andExpect(jsonPath("$.url").doesNotExist());
+    }
+
+    @Test
+    void partialEnvUrlsReject400() throws Exception {
+        // Only one env URL provided — should fail validation
+        String bad = "{\"nameZh\":\"x\",\"nameEn\":\"x\"," +
+            "\"urlDev\":\"https://dev.x\"," +
+            "\"icon\":\"i\",\"categoryCode\":\"MES\",\"statusCode\":\"ACTIVE\",\"sortOrder\":0}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(bad))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void bothUrlAndEnvUrlsReject400() throws Exception {
+        // url + all three env URLs → invalid (XOR)
+        String bad = "{\"nameZh\":\"x\",\"nameEn\":\"x\"," +
+            "\"url\":\"https://x\"," +
+            "\"urlDev\":\"https://dev.x\",\"urlUat\":\"https://uat.x\",\"urlRelease\":\"https://rel.x\"," +
+            "\"icon\":\"i\",\"categoryCode\":\"MES\",\"statusCode\":\"ACTIVE\",\"sortOrder\":0}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(bad))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void noUrlAtAllRejects400() throws Exception {
+        // Neither url nor env URLs → invalid
+        String bad = "{\"nameZh\":\"x\",\"nameEn\":\"x\"," +
+            "\"icon\":\"i\",\"categoryCode\":\"MES\",\"statusCode\":\"ACTIVE\",\"sortOrder\":0}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(bad))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void filtersLinksByCategoryAndQuery() throws Exception {
         // Create MES link
-        String mesBody = "{\"code\":\"mes-wip\",\"nameZh\":\"在制品\",\"nameEn\":\"WIP\"," +
+        String mesBody = "{\"nameZh\":\"在制品\",\"nameEn\":\"WIP\"," +
             "\"url\":\"https://mes\",\"icon\":\"factory\",\"categoryCode\":\"MES\"," +
             "\"statusCode\":\"ACTIVE\",\"sortOrder\":10}";
         mvc.perform(post("/api/admin/links").header("Authorization", admin)
@@ -74,7 +124,7 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
             .andExpect(status().isCreated());
 
         // Create QUALITY link
-        String qualityBody = "{\"code\":\"quality-dashboard\",\"nameZh\":\"质量看板\",\"nameEn\":\"Quality Dashboard\"," +
+        String qualityBody = "{\"nameZh\":\"质量看板\",\"nameEn\":\"Quality Dashboard\"," +
             "\"url\":\"https://quality\",\"icon\":\"chart\",\"categoryCode\":\"QUALITY\"," +
             "\"statusCode\":\"ACTIVE\",\"sortOrder\":20}";
         mvc.perform(post("/api/admin/links").header("Authorization", admin)
@@ -85,13 +135,13 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
         mvc.perform(get("/api/admin/links?categoryCode=MES").header("Authorization", admin))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].code").value("mes-wip"));
+            .andExpect(jsonPath("$[0].nameEn").value("WIP"));
 
-        // Filter by q=wip (substring match on code) → only MES link
+        // Filter by q=wip (substring match on nameEn) → only MES link
         mvc.perform(get("/api/admin/links?q=wip").header("Authorization", admin))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].code").value("mes-wip"));
+            .andExpect(jsonPath("$[0].nameEn").value("WIP"));
 
         // No filters → both results
         mvc.perform(get("/api/admin/links").header("Authorization", admin))
@@ -101,7 +151,7 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
 
     @Test
     void rejectsUnknownCategory() throws Exception {
-        String bad = "{\"code\":\"x\",\"nameZh\":\"x\",\"nameEn\":\"x\",\"url\":\"https://x\"," +
+        String bad = "{\"nameZh\":\"x\",\"nameEn\":\"x\",\"url\":\"https://x\"," +
             "\"icon\":\"i\",\"categoryCode\":\"NOPE\",\"statusCode\":\"ACTIVE\",\"sortOrder\":0}";
         mvc.perform(post("/api/admin/links").header("Authorization", admin)
                 .contentType(MediaType.APPLICATION_JSON).content(bad))

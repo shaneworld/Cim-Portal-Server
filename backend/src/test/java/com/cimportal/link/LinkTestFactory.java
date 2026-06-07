@@ -4,10 +4,20 @@ package com.cimportal.link;
 public final class LinkTestFactory {
     private LinkTestFactory() { }
 
-    public static Link newLink(String code, String categoryCode) {
+    public static Link newLink(String nameEn, String categoryCode) {
         Link l = new Link();
-        l.setCode(code); l.setNameZh("名"); l.setNameEn("name");
+        l.setNameZh("名"); l.setNameEn(nameEn);
         l.setUrl("https://x"); l.setIcon("factory");
+        l.setCategoryCode(categoryCode); l.setStatusCode("ACTIVE");
+        l.setSortOrder(1); l.setOpenInNewTab(true);
+        return l;
+    }
+
+    public static Link newEnvLink(String nameEn, String categoryCode) {
+        Link l = new Link();
+        l.setNameZh("名"); l.setNameEn(nameEn);
+        l.setUrlDev("https://dev.x"); l.setUrlUat("https://uat.x"); l.setUrlRelease("https://x");
+        l.setIcon("factory");
         l.setCategoryCode(categoryCode); l.setStatusCode("ACTIVE");
         l.setSortOrder(1); l.setOpenInNewTab(true);
         return l;

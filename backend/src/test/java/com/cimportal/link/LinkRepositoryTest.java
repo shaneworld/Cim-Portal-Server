@@ -16,7 +16,7 @@ class LinkRepositoryTest extends MariaDbIntegrationTest {
 
     @Test
     void cascadeDeleteRemovesGrants() {
-        Link l = links.save(newLink("mes-wip"));
+        Link l = links.save(newLink("WIP Management"));
         grants.save(new LinkAccessGrant(l.getId(), GrantType.ROLE, "OPERATOR"));
         assertThat(grants.findByLinkId(l.getId())).hasSize(1);
 
@@ -26,9 +26,9 @@ class LinkRepositoryTest extends MariaDbIntegrationTest {
         assertThat(grants.findByLinkId(l.getId())).isEmpty();
     }
 
-    private Link newLink(String code) {
+    private Link newLink(String nameEn) {
         Link l = new Link();
-        l.setCode(code); l.setNameZh("名"); l.setNameEn("name");
+        l.setNameZh("名"); l.setNameEn(nameEn);
         l.setUrl("https://x"); l.setIcon("factory");
         l.setCategoryCode("MES"); l.setStatusCode("ACTIVE");
         l.setSortOrder(1); l.setOpenInNewTab(true);

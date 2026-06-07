@@ -62,15 +62,24 @@ public class DevDataSeeder implements ApplicationRunner {
     }
 
     private void seedLinks() {
-        Link wip = save("mes-wip", "在制品管理", "WIP Management", "https://mes.example.com/wip", "factory", "MES", "ACTIVE", 10);
+        // Plain URL links
+        Link wip = links.save(new Link("在制品管理", "WIP Management", "https://mes.example.com/wip",
+            "factory", "MES", "ACTIVE", 10, true));
         grants.save(new LinkAccessGrant(wip.getId(), GrantType.DEPARTMENT, "FAB1-PROD"));
-        Link spc = save("qa-spc", "SPC 分析", "SPC Analysis", "https://spc.example.com", "line-chart", "QUALITY", "ACTIVE", 20);
-        grants.save(new LinkAccessGrant(spc.getId(), GrantType.ROLE, "QA_ENGINEER"));
-        save("docs", "帮助文档", "Docs", "https://docs.example.com", "book", "MES", "ACTIVE", 30); // no grant → everyone
-    }
 
-    private Link save(String code, String zh, String en, String url, String icon,
-                      String cat, String status, int sort) {
-        return links.save(new Link(code, zh, en, url, icon, cat, status, sort, true));
+        // Env-aware link: SPC (DEV/UAT/RELEASE URLs, no single url)
+        Link spc = new Link("SPC 分析", "SPC Analysis", null, "line-chart", "QUALITY", "ACTIVE", 20, true);
+        spc.setUrlDev("https://spc-dev.example.com");
+        spc.setUrlUat("https://spc-uat.example.com");
+        spc.setUrlRelease("https://spc.example.com");
+        spc = links.save(spc);
+        grants.save(new LinkAccessGrant(spc.getId(), GrantType.ROLE, "QA_ENGINEER"));
+
+        // Env-aware link: docs portal (open to everyone)
+        Link docs = new Link("帮助文档", "Docs", null, "book", "MES", "ACTIVE", 30, true);
+        docs.setUrlDev("https://docs-dev.example.com");
+        docs.setUrlUat("https://docs-uat.example.com");
+        docs.setUrlRelease("https://docs.example.com");
+        links.save(docs);
     }
 }

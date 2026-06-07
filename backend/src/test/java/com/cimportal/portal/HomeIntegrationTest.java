@@ -39,8 +39,8 @@ class HomeIntegrationTest extends MariaDbIntegrationTest {
         users.save(new UserInfo("QA1", "质量", "QA", "QA", "QA_ENGINEER", null, true, Instant.now()));
         users.save(new UserInfo("OFF", "离职", "Gone", "QA", "QA_ENGINEER", null, false, Instant.now()));
 
-        Link open = LinkTestFactory.newLink("public", "MES"); links.save(open);
-        Link opOnly = LinkTestFactory.newLink("op-only", "MES"); links.save(opOnly);
+        Link open = LinkTestFactory.newLink("Public Link", "MES"); links.save(open);
+        Link opOnly = LinkTestFactory.newLink("OP Only", "MES"); links.save(opOnly);
         grants.save(new LinkAccessGrant(opOnly.getId(), GrantType.ROLE, "OPERATOR"));
     }
 
@@ -56,7 +56,7 @@ class HomeIntegrationTest extends MariaDbIntegrationTest {
         mvc.perform(get("/api/portal/home").header("Authorization", "Bearer " + jwts.bearerFor("QA1")))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.categories[0].links.length()").value(1))
-            .andExpect(jsonPath("$.categories[0].links[0].code").value("public"));
+            .andExpect(jsonPath("$.categories[0].links[0].nameEn").value("Public Link"));
     }
 
     @Test
@@ -73,4 +73,15 @@ class HomeIntegrationTest extends MariaDbIntegrationTest {
             .andExpect(jsonPath("$.code").value("USER_NOT_PROVISIONED"));
     }
 
+    @Test
+    void homeLinkHasEnvUrlFieldsAndNoCode() throws Exception {
+        mvc.perform(get("/api/portal/home").header("Authorization", "Bearer " + jwts.bearerFor("OP1")))
+            .andExpect(status().isOk())
+            // url field present (plain link)
+            .andExpect(jsonPath("$.categories[0].links[0].url").value("https://x"))
+            // urlDev/urlUat/urlRelease present (null for plain link)
+            .andExpect(jsonPath("$.categories[0].links[0].urlDev").doesNotExist())
+            // no code field
+            .andExpect(jsonPath("$.categories[0].links[0].code").doesNotExist());
+    }
 }
