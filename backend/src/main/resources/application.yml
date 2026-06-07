@@ -20,6 +20,13 @@ management:
       exposure:
         include: health
 
+app:
+  cors:
+    # 桌面 WebView 源(全环境恒定);Web 同源无需 CORS
+    allowed-origins:
+      - tauri://localhost
+      - http://tauri.localhost
+
 ---
 spring:
   config:
@@ -34,6 +41,11 @@ spring:
 app:
   security:
     mode: dev-jwt
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - tauri://localhost
+      - http://tauri.localhost
 
 ---
 spring:
