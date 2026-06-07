@@ -1,5 +1,6 @@
 package com.cimportal.seed;
 
+import com.cimportal.common.AppConstants;
 import com.cimportal.enumvalue.EnumCategory;
 import com.cimportal.enumvalue.EnumValue;
 import com.cimportal.enumvalue.EnumValueRepository;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 
 @Component
-@Profile({"dev", "uat"})
+@Profile({AppConstants.Profiles.DEV, AppConstants.Profiles.UAT})
 public class DevDataSeeder implements ApplicationRunner {
 
     private final EnumValueRepository enums;
