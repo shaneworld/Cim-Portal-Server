@@ -45,12 +45,13 @@ public class HomeService {
 
         for (Link l : all) {
             var g = grantsByLink.getOrDefault(l.getId(), List.of());
-            if (!PermissionResolver.isVisible(user.departmentCode(), user.roleCode(), g)) continue;
+            boolean accessible = PermissionResolver.isVisible(user.departmentCode(), user.roleCode(), g);
             byCategory.computeIfAbsent(l.getCategoryCode(), k -> new ArrayList<>())
                 .add(new HomeLink(l.getId(), l.getNameZh(), l.getNameEn(),
-                    l.getUrl(), l.getIcon(), l.getStatusCode(),
+                    accessible ? l.getUrl() : null, l.getIcon(), l.getStatusCode(),
                     l.isOpenInNewTab(), l.getEnvironment(),
-                    l.isLaunchApp(), l.getDownloadUrl()));
+                    l.isLaunchApp(), accessible ? l.getDownloadUrl() : null,
+                    accessible));
         }
 
         List<HomeCategory> categories = new ArrayList<>();

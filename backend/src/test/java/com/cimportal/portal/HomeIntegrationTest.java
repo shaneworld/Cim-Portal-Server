@@ -46,18 +46,34 @@ class HomeIntegrationTest extends MariaDbIntegrationTest {
     }
 
     @Test
-    void operatorSeesBothLinks() throws Exception {
+    void operatorSeesBothLinksAccessible() throws Exception {
         mvc.perform(get("/api/portal/home").header("Authorization", "Bearer " + jwts.bearerFor("OP1")))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.categories[0].links.length()").value(2));
+            .andExpect(jsonPath("$.categories[0].links.length()").value(2))
+            // open link: accessible, url present
+            .andExpect(jsonPath("$.categories[0].links[0].accessible").value(true))
+            .andExpect(jsonPath("$.categories[0].links[0].url").value("https://x"))
+            // restricted link: OPERATOR role matches → accessible, url present
+            .andExpect(jsonPath("$.categories[0].links[1].nameEn").value("OP Only"))
+            .andExpect(jsonPath("$.categories[0].links[1].accessible").value(true))
+            .andExpect(jsonPath("$.categories[0].links[1].url").value("https://x"));
     }
 
     @Test
-    void qaSeesOnlyPublicLink() throws Exception {
+    void qaSeesAllLinksButRestrictedOnesLocked() throws Exception {
+        // QA1 has role QA_ENGINEER — no match for the OPERATOR-restricted "OP Only" link
         mvc.perform(get("/api/portal/home").header("Authorization", "Bearer " + jwts.bearerFor("QA1")))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.categories[0].links.length()").value(1))
-            .andExpect(jsonPath("$.categories[0].links[0].nameEn").value("Public Link"));
+            // ALL active links are returned — no skipping
+            .andExpect(jsonPath("$.categories[0].links.length()").value(2))
+            // public link: no grants → accessible=true, url exposed
+            .andExpect(jsonPath("$.categories[0].links[0].nameEn").value("Public Link"))
+            .andExpect(jsonPath("$.categories[0].links[0].accessible").value(true))
+            .andExpect(jsonPath("$.categories[0].links[0].url").value("https://x"))
+            // OP Only link: QA_ENGINEER has no match → accessible=false, url hidden
+            .andExpect(jsonPath("$.categories[0].links[1].nameEn").value("OP Only"))
+            .andExpect(jsonPath("$.categories[0].links[1].accessible").value(false))
+            .andExpect(jsonPath("$.categories[0].links[1].url").doesNotExist());
     }
 
     @Test
