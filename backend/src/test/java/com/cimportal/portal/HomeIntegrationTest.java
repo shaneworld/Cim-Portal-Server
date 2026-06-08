@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -91,5 +92,25 @@ class HomeIntegrationTest extends MariaDbIntegrationTest {
             .andExpect(jsonPath("$.categories[0].links[0].urlRelease").doesNotExist())
             // UAT link carries environment value
             .andExpect(jsonPath("$.categories[0].links[2].environment").value("UAT"));
+    }
+
+    @Test
+    void homeLinkCarriesLaunchAppAndDownloadUrl() throws Exception {
+        // Seed a launch link
+        Link launchLink = LinkTestFactory.newLink("Launch App", "MES");
+        launchLink.setUrl("mesclient://");
+        launchLink.setLaunchApp(true);
+        launchLink.setDownloadUrl("https://downloads.example.com/mes-client-setup.exe");
+        links.save(launchLink);
+
+        mvc.perform(get("/api/portal/home").header("Authorization", "Bearer " + jwts.bearerFor("OP1")))
+            .andExpect(status().isOk())
+            // plain links default to launchApp=false
+            .andExpect(jsonPath("$.categories[0].links[0].launchApp").value(false))
+            .andExpect(jsonPath("$.categories[0].links[0].downloadUrl").doesNotExist())
+            // launch link carries both fields
+            .andExpect(jsonPath("$.categories[0].links[2].launchApp").value(true))
+            .andExpect(jsonPath("$.categories[0].links[2].downloadUrl")
+                .value("https://downloads.example.com/mes-client-setup.exe"));
     }
 }

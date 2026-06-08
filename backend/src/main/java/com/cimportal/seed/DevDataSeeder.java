@@ -89,6 +89,12 @@ public class DevDataSeeder implements ApplicationRunner {
 
         // Maintenance Orders — maintenance status, open to all
         links.save(new Link("维护工单", "Maintenance Orders", "https://mwo.example.com", "wrench", "MAINTENANCE", "MAINTENANCE", 50, true));
+
+        // MES Client — launch link (no grant = visible to all)
+        Link mesClient = new Link("MES 客户端", "MES Client", "mesclient://", "factory", "MES", "ACTIVE", 70, true);
+        mesClient.setLaunchApp(true);
+        mesClient.setDownloadUrl("https://downloads.example.com/mes-client-setup.exe");
+        links.save(mesClient);
     }
 
     private Link makeEnvLink(String nameZh, String nameEn, String icon,

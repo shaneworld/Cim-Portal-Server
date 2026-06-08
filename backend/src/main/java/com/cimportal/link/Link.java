@@ -19,6 +19,8 @@ public class Link {
     @Column(name = "open_in_new_tab", nullable = false) private boolean openInNewTab = true;
     @Enumerated(EnumType.STRING)
     @Column(name = "environment", length = 16) private LinkEnv environment;
+    @Column(name = "launch_app", nullable = false) private boolean launchApp = false;
+    @Column(name = "download_url", length = 1024) private String downloadUrl;
     @CreationTimestamp @Column(name = "created_at", updatable = false) private Instant createdAt;
     @UpdateTimestamp @Column(name = "updated_at") private Instant updatedAt;
 
@@ -41,6 +43,8 @@ public class Link {
     public int getSortOrder() { return sortOrder; }
     public boolean isOpenInNewTab() { return openInNewTab; }
     public LinkEnv getEnvironment() { return environment; }
+    public boolean isLaunchApp() { return launchApp; }
+    public String getDownloadUrl() { return downloadUrl; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
@@ -53,4 +57,6 @@ public class Link {
     public void setSortOrder(int v) { this.sortOrder = v; }
     public void setOpenInNewTab(boolean v) { this.openInNewTab = v; }
     public void setEnvironment(LinkEnv v) { this.environment = v; }
+    public void setLaunchApp(boolean v) { this.launchApp = v; }
+    public void setDownloadUrl(String v) { this.downloadUrl = v; }
 }

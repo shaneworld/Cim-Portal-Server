@@ -95,6 +95,8 @@ public class LinkService {
         l.setCategoryCode(req.categoryCode()); l.setStatusCode(req.statusCode());
         l.setSortOrder(req.sortOrder()); l.setOpenInNewTab(req.openInNewTabOrDefault());
         l.setEnvironment(req.environment());
+        l.setLaunchApp(req.launchAppOrDefault());
+        l.setDownloadUrl(req.downloadUrl());
     }
 
     private void requireEnum(EnumCategory category, String code) {

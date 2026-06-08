@@ -153,4 +153,41 @@ class LinkAdminControllerTest extends MariaDbIntegrationTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
     }
+
+    @Test
+    void createLaunchLinkReturns201WithBothFields() throws Exception {
+        String body = "{\"nameZh\":\"MES客户端\",\"nameEn\":\"MES Client\"," +
+            "\"url\":\"mesclient://\",\"icon\":\"factory\",\"categoryCode\":\"MES\"," +
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":70," +
+            "\"launchApp\":true," +
+            "\"downloadUrl\":\"https://downloads.example.com/mes-client-setup.exe\"}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(body))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.launchApp").value(true))
+            .andExpect(jsonPath("$.downloadUrl").value("https://downloads.example.com/mes-client-setup.exe"));
+    }
+
+    @Test
+    void createLaunchLinkWithoutDownloadUrlRejects400() throws Exception {
+        String bad = "{\"nameZh\":\"MES客户端\",\"nameEn\":\"MES Client\"," +
+            "\"url\":\"mesclient://\",\"icon\":\"factory\",\"categoryCode\":\"MES\"," +
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":70," +
+            "\"launchApp\":true}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(bad))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createPlainWebLinkWithLaunchAppOmittedReturns201() throws Exception {
+        String body = "{\"nameZh\":\"文档\",\"nameEn\":\"Docs\"," +
+            "\"url\":\"https://docs.example.com\",\"icon\":\"book\",\"categoryCode\":\"MES\"," +
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":30}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(body))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.launchApp").value(false))
+            .andExpect(jsonPath("$.downloadUrl").isEmpty());
+    }
 }

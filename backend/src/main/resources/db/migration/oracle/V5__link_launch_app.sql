@@ -1,0 +1,1 @@
+ALTER TABLE link ADD (launch_app NUMBER(1) DEFAULT 0 NOT NULL, download_url VARCHAR2(1024));

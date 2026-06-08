@@ -49,7 +49,8 @@ public class HomeService {
             byCategory.computeIfAbsent(l.getCategoryCode(), k -> new ArrayList<>())
                 .add(new HomeLink(l.getId(), l.getNameZh(), l.getNameEn(),
                     l.getUrl(), l.getIcon(), l.getStatusCode(),
-                    l.isOpenInNewTab(), l.getEnvironment()));
+                    l.isOpenInNewTab(), l.getEnvironment(),
+                    l.isLaunchApp(), l.getDownloadUrl()));
         }
 
         List<HomeCategory> categories = new ArrayList<>();
