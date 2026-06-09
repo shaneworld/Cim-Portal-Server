@@ -20,6 +20,7 @@ public final class AppConstants {
     public static final class Paths {
         public static final String DEV_TOKEN = "/dev/token";
         public static final String ADMIN_API = "/api/admin/**";
+        public static final String PORTAL_CONFIG = "/api/portal/config";
         private Paths() {}
     }
 

@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.*;
@@ -29,6 +31,11 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     SecurityFilterChain filterChain(HttpSecurity http,
                                     UserInfoAuthoritiesConverter authoritiesConverter,
                                     RestAuthEntryPoint authEntryPoint,
@@ -39,7 +46,8 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/swagger-ui.html", "/swagger-ui/**",
-                                 "/v3/api-docs/**", AppConstants.Paths.DEV_TOKEN).permitAll()
+                                 "/v3/api-docs/**", AppConstants.Paths.DEV_TOKEN,
+                                 AppConstants.Paths.PORTAL_CONFIG).permitAll()
                 .requestMatchers(AppConstants.Paths.ADMIN_API).hasRole(AppConstants.Roles.PORTAL_ADMIN)
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(authoritiesConverter)))
