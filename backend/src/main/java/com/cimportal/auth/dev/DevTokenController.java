@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-/** dev only: exchange an employeeId for a locally-signed JWT (no real IdP). */
+/** dev only: exchange an employeeId for a locally-signed portal JWT (no real IdP). */
 @RestController
 @Profile(AppConstants.Profiles.DEV)
 public class DevTokenController {
@@ -19,6 +19,7 @@ public class DevTokenController {
     @GetMapping(AppConstants.Paths.DEV_TOKEN)
     public Map<String, String> token(@RequestParam String employeeId) {
         JwtClaimsSet claims = JwtClaimsSet.builder()
+            .issuer(AppConstants.Issuer.PORTAL)
             .subject(employeeId)
             .issuedAt(Instant.now())
             .expiresAt(Instant.now().plus(AppConstants.DevToken.TTL_HOURS, ChronoUnit.HOURS))

@@ -28,4 +28,15 @@ public final class AppConstants {
         public static final long TTL_HOURS = 12;
         private DevToken() {}
     }
+
+    public static final class Issuer {
+        /** iss claim value minted by the portal's own JwtEncoder. */
+        public static final String PORTAL = "cim-portal";
+        private Issuer() {}
+    }
+
+    public static final class Auth {
+        public static final String LOGIN_PATH = "/api/auth/login";
+        private Auth() {}
+    }
 }
