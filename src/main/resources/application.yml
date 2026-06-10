@@ -58,12 +58,6 @@ spring:
     password: ${DB_PASSWORD}
   flyway:
     locations: classpath:db/migration/oracle
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # TODO(hardening): 一旦确定真实 IdP 的 audience,补充 audience 校验(默认 issuer-uri 仅校验签名+iss+时效,不校验 aud)
-          issuer-uri: ${OIDC_ISSUER_URI}
 app:
   security:
     mode: oidc
@@ -79,12 +73,6 @@ spring:
     password: ${DB_PASSWORD}
   flyway:
     locations: classpath:db/migration/oracle
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # TODO(hardening): 一旦确定真实 IdP 的 audience,补充 audience 校验(默认 issuer-uri 仅校验签名+iss+时效,不校验 aud)
-          issuer-uri: ${OIDC_ISSUER_URI}
 app:
   security:
     mode: oidc

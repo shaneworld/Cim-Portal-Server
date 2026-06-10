@@ -42,8 +42,18 @@ public class PortalJwtKeys {
     @Value("${app.security.portal-jwt.private-key:}") private String privateKeyPem;
     @Value("${app.security.portal-jwt.public-key:}")  private String publicKeyPem;
 
+    @Value("${app.security.portal-jwt.private-key-location:}") private String privateKeyLocation;
+    @Value("${app.security.portal-jwt.public-key-location:}")  private String publicKeyLocation;
+
     @Bean
     KeyPair portalKeyPair() throws Exception {
+        if (!privateKeyLocation.isBlank() && !publicKeyLocation.isBlank()) {
+            log.info("Portal JWT: loading RSA key pair from files {} / {}", privateKeyLocation, publicKeyLocation);
+            String priv = java.nio.file.Files.readString(java.nio.file.Path.of(privateKeyLocation));
+            String pub  = java.nio.file.Files.readString(java.nio.file.Path.of(publicKeyLocation));
+            return parsePemKeyPair(priv, pub);
+        }
+
         if (!privateKeyPem.isBlank() && !publicKeyPem.isBlank()) {
             log.info("Portal JWT: loading RSA key pair from configuration");
             return parsePemKeyPair(privateKeyPem, publicKeyPem);
