@@ -1,0 +1,35 @@
+version: 2
+id: "container"
+type: "container"
+title: "AP1 IT CIM Portal — Containers"
+audience:
+  - "new_hires"
+  - "senior_architects"
+purpose: "What runs at runtime and how the units communicate."
+scope: "Deployable/runtime units (SPA, API, DB) plus people and external systems."
+source_model: "architecture/model.yaml"
+element_ids:
+  - "portal-user"
+  - "portal-admin"
+  - "spa"
+  - "backend-api"
+  - "relational-db"
+  - "company-sso"
+  - "local-desktop-app"
+relationship_ids:
+  - "rel-user-spa"
+  - "rel-admin-spa"
+  - "rel-spa-sso"
+  - "rel-spa-api"
+  - "rel-spa-desktop"
+  - "rel-api-db"
+  - "rel-api-sso"
+assumptions:
+  - text: "SPA (static assets) and API (JVM service) are deployed as separate units; same-origin or CORS-allowed."
+    confidence: "strong_inference"
+unknowns:
+  - "Exact relational-db topology (Oracle host/PDB) is deployment config."
+notes:
+  - "backend-api is a STATELESS resource server: it accepts Bearer JWTs from two issuers — portal-internal (cim-portal, self-signed) and company-sso (validated via JWKS)."
+  - "Deployment modes: dev = dev-jwt + MariaDB; oracle-dev = dev-jwt + Oracle; uat/prod = OIDC + Oracle. Same runtime roles; only datasource + token issuer change."
+  - "relational-db is Oracle in uat/prod and MariaDB in dev; Flyway keeps parallel migration sets."

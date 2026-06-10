@@ -1,0 +1,805 @@
+version: 2
+system_name: "AP1 IT CIM Portal"
+repo_archetype: "full_stack_product"
+
+elements:
+  # ---------- People ----------
+  - id: "portal-user"
+    name: "Portal User"
+    kind: "person"
+    c4_level: "context"
+    description: "Factory/MES staff who open systems from the portal dashboard."
+    responsibility: "Authenticate and launch the systems they are granted access to."
+    technology: ""
+    owned_data: []
+    system_of_record: []
+    runtime_boundary: "external"
+    external: true
+    source_paths:
+      - "cim-portal-client/src/features/dashboard"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-features"]
+
+  - id: "portal-admin"
+    name: "Portal Administrator"
+    kind: "person"
+    c4_level: "context"
+    description: "PORTAL_ADMIN role; configures links, enums, access grants and SSO/security settings."
+    responsibility: "Maintain catalog, access grants, and SSO/internal-login configuration."
+    technology: ""
+    owned_data: []
+    system_of_record: []
+    runtime_boundary: "external"
+    external: true
+    source_paths:
+      - "cim-portal-client/src/features/admin"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-features", "ev-be-settings"]
+
+  # ---------- System of interest ----------
+  - id: "cim-portal"
+    name: "AP1 IT CIM Portal"
+    kind: "software_system"
+    c4_level: "context"
+    description: "SSO-gated internal portal that lists/launches manufacturing systems with per-link access control, environments, and local-app launch."
+    responsibility: "Authenticated catalog of internal systems with grant-based access and admin configuration."
+    technology: "Vue 3 SPA + Spring Boot 3 resource server + relational DB"
+    owned_data: ["Link", "LinkAccessGrant", "EnumValue", "UserInfo", "SecuritySetting"]
+    system_of_record: ["Link", "LinkAccessGrant", "EnumValue", "UserInfo", "SecuritySetting"]
+    runtime_boundary: "deployable"
+    external: false
+    source_paths:
+      - "cim-portal-client"
+      - "cim-portal-server/backend"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-pkg", "ev-be-pom"]
+
+  # ---------- External systems ----------
+  - id: "company-sso"
+    name: "Company SSO (OIDC IdP)"
+    aliases: ["Keycloak (dev/test)", "Corporate Identity Provider"]
+    kind: "external_system"
+    c4_level: "context"
+    description: "Corporate OpenID Connect identity provider. Keycloak is used in dev/test; the company IdP in uat/prod. Authenticates users and issues access tokens."
+    responsibility: "Authenticate users and issue OIDC access tokens; expose JWKS for token verification."
+    technology: "OpenID Connect (Authorization Code + PKCE)"
+    owned_data: ["User identities (external)", "Sessions (external)"]
+    system_of_record: ["User credentials/sessions (external IdP)"]
+    runtime_boundary: "external"
+    external: true
+    source_paths:
+      - "cim-portal-client/src/lib/auth/sso.ts"
+      - "cim-portal-server/backend/src/main/java/com/cimportal/auth/MultiIssuerJwtDecoder.java"
+      - "cim-portal-client/docs/Keycloak-SSO-dev.md"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-sso", "ev-be-security", "ev-doc-sso"]
+
+  - id: "local-desktop-app"
+    name: "Local Desktop App"
+    kind: "external_system"
+    c4_level: "context"
+    description: "Client-machine .exe launched via a registered custom URL scheme (e.g. mesclient://). If not installed, the browser falls back to a download URL."
+    responsibility: "Native client application launched from a link card via OS protocol handler."
+    technology: "Windows custom URL scheme / protocol handler"
+    owned_data: []
+    system_of_record: []
+    runtime_boundary: "external"
+    external: true
+    source_paths:
+      - "cim-portal-client/src/lib/composables/useAppLaunch.ts"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-launch"]
+
+  # ---------- Containers ----------
+  - id: "spa"
+    name: "Web SPA (cim-portal-client)"
+    kind: "container"
+    c4_level: "container"
+    description: "Vue 3 single-page app served to the browser. Public OIDC (PKCE) client; holds the Bearer token; renders dashboard and admin."
+    responsibility: "UI, OIDC PKCE login + internal-login fallback, calls the backend with a Bearer token."
+    technology: "Vue 3, TypeScript, Vite, Tailwind, Pinia, vue-router, vue-i18n, oidc-client-ts"
+    owned_data: ["Auth token (browser localStorage)", "Locale/theme prefs (browser)"]
+    system_of_record: []
+    runtime_boundary: "deployable"
+    deployable: true
+    external: false
+    source_paths:
+      - "cim-portal-client/src"
+      - "cim-portal-client/package.json"
+    tags: ["frontend"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-pkg", "ev-fe-main", "ev-fe-router"]
+
+  - id: "backend-api"
+    name: "Portal API (cim-portal-server)"
+    kind: "container"
+    c4_level: "container"
+    description: "Spring Boot 3.3 stateless OAuth2 resource server (JDK 21). Validates Bearer JWTs from two issuers (portal-internal + company SSO), serves portal + admin REST APIs."
+    responsibility: "Authentication/authorization, business logic, persistence, schema migration."
+    technology: "Spring Boot 3.3.5, Spring Security OAuth2 Resource Server, JPA/Hibernate, Flyway, JDK 21"
+    owned_data: ["Link", "LinkAccessGrant", "EnumValue", "UserInfo", "SecuritySetting"]
+    system_of_record: ["Link", "LinkAccessGrant", "EnumValue", "UserInfo", "SecuritySetting"]
+    runtime_boundary: "deployable"
+    deployable: true
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/java/com/cimportal"
+      - "cim-portal-server/backend/pom.xml"
+    tags: ["backend", "stateless"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-pom", "ev-be-security", "ev-be-portal"]
+
+  - id: "relational-db"
+    name: "Relational Database"
+    aliases: ["Oracle (uat/prod)", "MariaDB (dev)"]
+    kind: "database"
+    c4_level: "container"
+    description: "Relational store for all portal entities. Oracle in uat/prod; MariaDB in dev. Schema managed by Flyway with parallel oracle/mariadb migration sets (V1–V6)."
+    responsibility: "Durable storage of portal catalog, grants, enums, users, and security settings."
+    technology: "Oracle (uat/prod) / MariaDB (dev), Flyway-migrated"
+    owned_data: ["link", "link_access_grant", "enum_value", "user_info", "security_setting", "flyway_schema_history"]
+    system_of_record: []
+    runtime_boundary: "data_store"
+    deployable: true
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/resources/db/migration/oracle"
+      - "cim-portal-server/backend/src/main/resources/db/migration/mariadb"
+      - "cim-portal-server/backend/src/main/resources/application.yml"
+    tags: ["datastore"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-migrations", "ev-appyml"]
+
+  # ---------- SPA components ----------
+  - id: "spa-auth"
+    name: "Auth & SSO Module"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "spa"
+    description: "OIDC PKCE flow (oidc-client-ts), config bootstrap, auth/config Pinia stores, LoginView (SSO-default + internal fallback) and CallbackView."
+    responsibility: "Drive login: auto-SSO once per session, internal-login fallback, token storage."
+    technology: "oidc-client-ts, Pinia"
+    owned_data: ["Auth token (localStorage)", "sso_attempted flag (sessionStorage)"]
+    system_of_record: []
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-client/src/lib/auth/sso.ts"
+      - "cim-portal-client/src/stores/auth.ts"
+      - "cim-portal-client/src/stores/config.ts"
+      - "cim-portal-client/src/features/auth"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-sso", "ev-fe-config", "ev-fe-auth"]
+
+  - id: "spa-api-client"
+    name: "API Client"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "spa"
+    description: "Fetch wrapper that attaches the Bearer token, sets Accept-Language, and handles 401 (onUnauthorized → clear)."
+    responsibility: "Typed HTTP access to the backend with auth + locale headers."
+    technology: "TypeScript fetch"
+    owned_data: []
+    system_of_record: []
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-client/src/lib/api/client.ts"
+      - "cim-portal-client/src/lib/api/portal.ts"
+      - "cim-portal-client/src/lib/api/admin.ts"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-apiclient"]
+
+  - id: "spa-dashboard"
+    name: "Dashboard UI"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "spa"
+    description: "Home/dashboard: SystemGrid + SystemCard (env badges, APP badge, locked cards), launch-local-app + download fallback, search/pagination."
+    responsibility: "Render accessible systems; open web links, launch local apps, show locked cards."
+    technology: "Vue 3"
+    owned_data: []
+    system_of_record: []
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-client/src/features/dashboard"
+      - "cim-portal-client/src/lib/composables/useAppLaunch.ts"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-features", "ev-fe-launch"]
+
+  - id: "spa-admin"
+    name: "Admin UI"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "spa"
+    description: "Admin console: links, enums, and security/SSO settings management (PORTAL_ADMIN only)."
+    responsibility: "CRUD links/enums/grants and edit SSO + internal-password settings."
+    technology: "Vue 3"
+    owned_data: []
+    system_of_record: []
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-client/src/features/admin"
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-features"]
+
+  # ---------- Backend components ----------
+  - id: "be-auth-security"
+    name: "Auth & Security"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "backend-api"
+    description: "Stateless security: SecurityFilterChain, MultiIssuerJwtDecoder (route by iss), PortalJwtKeys (RSA signer), UserInfoAuthoritiesConverter, internal-login (AuthController), /api/me, dev token endpoint."
+    responsibility: "Validate dual-issuer JWTs, map claim→employeeId→roles, issue internal/dev tokens."
+    technology: "Spring Security OAuth2 Resource Server, Nimbus JOSE"
+    owned_data: ["Portal-internal JWT signing key (cim-portal issuer)"]
+    system_of_record: []
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/java/com/cimportal/auth"
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-security", "ev-be-auth", "ev-converter"]
+
+  - id: "be-portal"
+    name: "Portal / Home"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "backend-api"
+    description: "Home assembly with grant-based access (HomeService + PermissionResolver: returns all active links with an accessible flag, hides url when locked) and public SSO config endpoint."
+    responsibility: "Serve /api/portal/home (locked cards) and public /api/portal/config."
+    technology: "Spring MVC"
+    owned_data: []
+    system_of_record: []
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/java/com/cimportal/portal"
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-portal"]
+
+  - id: "be-link"
+    name: "Link & Grant Domain"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "backend-api"
+    description: "Link admin CRUD + access grants. Link supports single url, environment (DEV/UAT/RELEASE), and launch-app (scheme + download url)."
+    responsibility: "Authoritative management of links and access grants."
+    technology: "Spring MVC, JPA"
+    owned_data: ["Link", "LinkAccessGrant"]
+    system_of_record: ["Link", "LinkAccessGrant"]
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/java/com/cimportal/link"
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-link"]
+
+  - id: "be-enum"
+    name: "Enum Domain"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "backend-api"
+    description: "Enum values for DEPARTMENT/ROLE/LINK_CATEGORY/LINK_STATUS; public read + admin CRUD."
+    responsibility: "Authoritative management of enum/reference values."
+    technology: "Spring MVC, JPA"
+    owned_data: ["EnumValue"]
+    system_of_record: ["EnumValue"]
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/java/com/cimportal/enumvalue"
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-enum"]
+
+  - id: "be-settings"
+    name: "Security Settings"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "backend-api"
+    description: "Single-row security_setting: SSO config (issuer/clientId/scopes/usernameClaim/enabled) + BCrypt internal-login password. Drives public config + multi-issuer SSO validation."
+    responsibility: "Authoritative SSO + internal-login configuration."
+    technology: "Spring MVC, JPA, BCrypt"
+    owned_data: ["SecuritySetting"]
+    system_of_record: ["SecuritySetting"]
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/java/com/cimportal/setting"
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-settings"]
+
+  - id: "be-user"
+    name: "User Directory"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "backend-api"
+    description: "UserInfo (employee_id, department, role, active). Source of roles/department for both SSO and internal-login principals. Admin API exists; UI nav was removed."
+    responsibility: "Authoritative user directory used for authorization (roles/dept)."
+    technology: "Spring MVC, JPA"
+    owned_data: ["UserInfo"]
+    system_of_record: ["UserInfo"]
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/java/com/cimportal/user"
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-user"]
+
+  - id: "be-persistence"
+    name: "Persistence & Migrations"
+    kind: "component"
+    c4_level: "component"
+    parent_id: "backend-api"
+    description: "JPA repositories + Flyway migrations (parallel oracle/mariadb sets V1–V6) applied on boot; selected by Spring profile."
+    responsibility: "Data access and schema lifecycle across Oracle/MariaDB."
+    technology: "Spring Data JPA, Flyway"
+    owned_data: []
+    system_of_record: []
+    runtime_boundary: "internal_module"
+    external: false
+    source_paths:
+      - "cim-portal-server/backend/src/main/resources/db/migration"
+    confidence: "confirmed"
+    evidence_ids: ["ev-migrations"]
+
+relationships:
+  # ----- Context-level (system as a whole) -----
+  - id: "rel-ctx-user"
+    source_id: "portal-user"
+    target_id: "cim-portal"
+    label: "browses and launches systems"
+    interaction_type: "uses"
+    directionality: "bidirectional"
+    sync_async: "human"
+    protocol: "https"
+    data_objects: ["dashboard", "link launches"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-features"]
+
+  - id: "rel-ctx-admin"
+    source_id: "portal-admin"
+    target_id: "cim-portal"
+    label: "configures links/enums/grants/SSO"
+    interaction_type: "uses"
+    directionality: "bidirectional"
+    sync_async: "human"
+    protocol: "https"
+    data_objects: ["admin config"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-settings", "ev-be-link"]
+
+  - id: "rel-ctx-sso"
+    source_id: "cim-portal"
+    target_id: "company-sso"
+    label: "authenticates users via OIDC + validates tokens (JWKS)"
+    interaction_type: "authenticates_with"
+    directionality: "bidirectional"
+    sync_async: "sync"
+    protocol: "https"
+    data_objects: ["auth code", "access_token", "JWKS"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-sso", "ev-be-security"]
+
+  - id: "rel-ctx-desktop"
+    source_id: "cim-portal"
+    target_id: "local-desktop-app"
+    label: "launches local app via custom URL scheme"
+    interaction_type: "triggers"
+    directionality: "unidirectional"
+    sync_async: "n_a"
+    protocol: "manual"
+    data_objects: ["scheme URL"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-launch"]
+
+  # ----- Container-level -----
+  - id: "rel-user-spa"
+    source_id: "portal-user"
+    target_id: "spa"
+    label: "uses the portal in a browser"
+    interaction_type: "uses"
+    directionality: "bidirectional"
+    sync_async: "human"
+    protocol: "https"
+    data_objects: ["page views", "clicks"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-features"]
+
+  - id: "rel-admin-spa"
+    source_id: "portal-admin"
+    target_id: "spa"
+    label: "administers links/enums/SSO"
+    interaction_type: "uses"
+    directionality: "bidirectional"
+    sync_async: "human"
+    protocol: "https"
+    data_objects: ["admin forms"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-features", "ev-be-settings"]
+
+  - id: "rel-spa-sso"
+    source_id: "spa"
+    target_id: "company-sso"
+    label: "OIDC login (Authorization Code + PKCE)"
+    interaction_type: "authenticates_with"
+    directionality: "bidirectional"
+    sync_async: "sync"
+    protocol: "https"
+    data_objects: ["auth code", "access_token", "id_token"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-sso", "ev-be-settings"]
+
+  - id: "rel-spa-api"
+    source_id: "spa"
+    target_id: "backend-api"
+    label: "REST calls with Bearer token"
+    interaction_type: "calls"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "https"
+    data_objects: ["home", "links", "enums", "security-settings", "config", "login"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-apiclient", "ev-be-portal"]
+
+  - id: "rel-spa-desktop"
+    source_id: "spa"
+    target_id: "local-desktop-app"
+    label: "launch via custom URL scheme; else download"
+    interaction_type: "triggers"
+    directionality: "unidirectional"
+    sync_async: "n_a"
+    protocol: "manual"
+    data_objects: ["scheme URL"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-launch"]
+
+  - id: "rel-api-db"
+    source_id: "backend-api"
+    target_id: "relational-db"
+    label: "reads/writes entities + migrates schema"
+    interaction_type: "writes"
+    directionality: "bidirectional"
+    sync_async: "storage"
+    protocol: "sql"
+    data_objects: ["Link", "LinkAccessGrant", "EnumValue", "UserInfo", "SecuritySetting"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-migrations", "ev-appyml"]
+
+  - id: "rel-api-sso"
+    source_id: "backend-api"
+    target_id: "company-sso"
+    label: "verify SSO JWT via JWKS"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "https"
+    data_objects: ["JWKS", "OIDC discovery"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-security"]
+
+  # ----- SPA component → peer relationships -----
+  - id: "rel-spaauth-sso"
+    source_id: "spa-auth"
+    target_id: "company-sso"
+    label: "PKCE redirect + token exchange"
+    interaction_type: "authenticates_with"
+    directionality: "bidirectional"
+    sync_async: "sync"
+    protocol: "https"
+    data_objects: ["auth code", "access_token"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-sso"]
+
+  - id: "rel-spaauth-client"
+    source_id: "spa-auth"
+    target_id: "spa-api-client"
+    label: "config / login / me requests"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["config", "credentials", "MeResponse"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-config", "ev-fe-apiclient"]
+
+  - id: "rel-spadash-client"
+    source_id: "spa-dashboard"
+    target_id: "spa-api-client"
+    label: "home request"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["HomeResponse"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-features", "ev-fe-apiclient"]
+
+  - id: "rel-spaadmin-client"
+    source_id: "spa-admin"
+    target_id: "spa-api-client"
+    label: "admin CRUD requests"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["Link", "EnumValue", "SecuritySetting"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-apiclient"]
+
+  - id: "rel-spaclient-api"
+    source_id: "spa-api-client"
+    target_id: "backend-api"
+    label: "REST over HTTPS with Bearer token"
+    interaction_type: "calls"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "https"
+    data_objects: ["config", "home", "links", "enums", "security-settings", "login", "MeResponse"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-apiclient", "ev-be-portal"]
+
+  - id: "rel-spadash-desktop"
+    source_id: "spa-dashboard"
+    target_id: "local-desktop-app"
+    label: "launch local app or fall back to download"
+    interaction_type: "triggers"
+    directionality: "unidirectional"
+    sync_async: "n_a"
+    protocol: "manual"
+    data_objects: ["scheme URL", "download URL"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-fe-launch"]
+
+  # ----- Backend component relationships -----
+  - id: "rel-beauth-sso"
+    source_id: "be-auth-security"
+    target_id: "company-sso"
+    label: "fetch JWKS to validate SSO tokens"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "https"
+    data_objects: ["JWKS"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-security"]
+
+  - id: "rel-beauth-user"
+    source_id: "be-auth-security"
+    target_id: "be-user"
+    label: "resolve principal → roles/department"
+    interaction_type: "reads"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["UserInfo"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-converter", "ev-be-user"]
+
+  - id: "rel-beauth-settings"
+    source_id: "be-auth-security"
+    target_id: "be-settings"
+    label: "internal-login password + SSO issuer config"
+    interaction_type: "reads"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["SecuritySetting"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-auth", "ev-be-settings"]
+
+  - id: "rel-beportal-link"
+    source_id: "be-portal"
+    target_id: "be-link"
+    label: "read links + grants for home"
+    interaction_type: "reads"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["Link", "LinkAccessGrant"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-portal", "ev-be-link"]
+
+  - id: "rel-beportal-user"
+    source_id: "be-portal"
+    target_id: "be-user"
+    label: "evaluate dept/role grants"
+    interaction_type: "reads"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["UserInfo"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-portal", "ev-be-user"]
+
+  - id: "rel-beportal-settings"
+    source_id: "be-portal"
+    target_id: "be-settings"
+    label: "expose public SSO config"
+    interaction_type: "reads"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["SecuritySetting (public view)"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-portal", "ev-be-settings"]
+
+  - id: "rel-belink-persist"
+    source_id: "be-link"
+    target_id: "be-persistence"
+    label: "persist links/grants"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["Link", "LinkAccessGrant"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-link", "ev-migrations"]
+
+  - id: "rel-beenum-persist"
+    source_id: "be-enum"
+    target_id: "be-persistence"
+    label: "persist enum values"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["EnumValue"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-enum", "ev-migrations"]
+
+  - id: "rel-besettings-persist"
+    source_id: "be-settings"
+    target_id: "be-persistence"
+    label: "persist security settings"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["SecuritySetting"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-settings", "ev-migrations"]
+
+  - id: "rel-beuser-persist"
+    source_id: "be-user"
+    target_id: "be-persistence"
+    label: "persist user directory"
+    interaction_type: "uses"
+    directionality: "unidirectional"
+    sync_async: "sync"
+    protocol: "in_process"
+    data_objects: ["UserInfo"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-be-user", "ev-migrations"]
+
+  - id: "rel-persist-db"
+    source_id: "be-persistence"
+    target_id: "relational-db"
+    label: "JDBC reads/writes + Flyway migrate"
+    interaction_type: "writes"
+    directionality: "bidirectional"
+    sync_async: "storage"
+    protocol: "sql"
+    data_objects: ["all tables"]
+    confidence: "confirmed"
+    evidence_ids: ["ev-migrations", "ev-appyml"]
+
+evidence:
+  - id: "ev-fe-pkg"
+    path: "cim-portal-client/package.json"
+    kind: "runtime_entrypoint"
+    strength: "high"
+    reason: "Declares the Vue/Vite/Pinia/oidc-client-ts stack and build/dev scripts for the SPA container."
+  - id: "ev-fe-main"
+    path: "cim-portal-client/src/bootstrap.ts"
+    kind: "runtime_entrypoint"
+    strength: "high"
+    reason: "App bootstrap: Pinia, i18n, API client config, awaits config load before router mount."
+  - id: "ev-fe-router"
+    path: "cim-portal-client/src/router/index.ts"
+    kind: "code_path"
+    strength: "high"
+    reason: "Routes (/login, /auth/callback, /, /admin/*) and auth/admin guards."
+  - id: "ev-fe-sso"
+    path: "cim-portal-client/src/lib/auth/sso.ts"
+    kind: "code_path"
+    strength: "high"
+    reason: "oidc-client-ts UserManager PKCE startSso/completeSso against the configured authority."
+  - id: "ev-fe-config"
+    path: "cim-portal-client/src/stores/config.ts"
+    kind: "code_path"
+    strength: "high"
+    reason: "Loads public /api/portal/config that drives SSO client + login flow."
+  - id: "ev-fe-apiclient"
+    path: "cim-portal-client/src/lib/api/client.ts"
+    kind: "code_path"
+    strength: "high"
+    reason: "Bearer-token fetch wrapper with 401 onUnauthorized handling."
+  - id: "ev-fe-auth"
+    path: "cim-portal-client/src/features/auth"
+    kind: "code_path"
+    strength: "high"
+    reason: "LoginView (SSO-default + internal fallback, once-per-session guard) and CallbackView."
+  - id: "ev-fe-features"
+    path: "cim-portal-client/src/features"
+    kind: "directory_name"
+    strength: "high"
+    reason: "auth/dashboard/admin feature modules of the SPA."
+  - id: "ev-fe-launch"
+    path: "cim-portal-client/src/lib/composables/useAppLaunch.ts"
+    kind: "code_path"
+    strength: "high"
+    reason: "Custom-scheme launch with 2s blur/visibility detection and download-URL fallback."
+  - id: "ev-be-pom"
+    path: "cim-portal-server/backend/pom.xml"
+    kind: "runtime_entrypoint"
+    strength: "high"
+    reason: "Spring Boot 3.3.5, JDK 21, finalName portal; ojdbc11 + mariadb-java-client + flyway."
+  - id: "ev-be-security"
+    path: "cim-portal-server/backend/src/main/java/com/cimportal/auth/MultiIssuerJwtDecoder.java"
+    kind: "code_path"
+    strength: "high"
+    reason: "Routes JWT validation by iss: portal key vs company-SSO JWKS; SecurityConfig + PortalJwtKeys."
+  - id: "ev-be-auth"
+    path: "cim-portal-server/backend/src/main/java/com/cimportal/auth/AuthController.java"
+    kind: "code_path"
+    strength: "high"
+    reason: "Internal-login endpoint, dev token endpoint, /api/me."
+  - id: "ev-converter"
+    path: "cim-portal-server/backend/src/main/java/com/cimportal/auth/UserInfoAuthoritiesConverter.java"
+    kind: "code_path"
+    strength: "high"
+    reason: "Maps usernameClaim→employeeId→user_info roles/department for authorization."
+  - id: "ev-be-portal"
+    path: "cim-portal-server/backend/src/main/java/com/cimportal/portal/HomeService.java"
+    kind: "code_path"
+    strength: "high"
+    reason: "Home assembly with accessible flag + url hidden when locked; PortalConfigController public config."
+  - id: "ev-be-link"
+    path: "cim-portal-server/backend/src/main/java/com/cimportal/link"
+    kind: "code_path"
+    strength: "high"
+    reason: "Link/LinkAccessGrant entities + admin controller/service (env, launch-app, grants)."
+  - id: "ev-be-enum"
+    path: "cim-portal-server/backend/src/main/java/com/cimportal/enumvalue"
+    kind: "code_path"
+    strength: "high"
+    reason: "EnumValue entity + public/admin enum controllers."
+  - id: "ev-be-settings"
+    path: "cim-portal-server/backend/src/main/java/com/cimportal/setting"
+    kind: "code_path"
+    strength: "high"
+    reason: "SecuritySetting entity/service/admin controller (SSO config + BCrypt internal password)."
+  - id: "ev-be-user"
+    path: "cim-portal-server/backend/src/main/java/com/cimportal/user"
+    kind: "code_path"
+    strength: "high"
+    reason: "UserInfo entity + admin controller; source of roles/department."
+  - id: "ev-migrations"
+    path: "cim-portal-server/backend/src/main/resources/db/migration"
+    kind: "migration"
+    strength: "high"
+    reason: "Parallel oracle/mariadb Flyway sets V1–V6 define the relational schema."
+  - id: "ev-appyml"
+    path: "cim-portal-server/backend/src/main/resources/application.yml"
+    kind: "deploy_config"
+    strength: "high"
+    reason: "Profiles (dev/oracle-db/uat/prod) select datasource + Flyway locations + security mode."
+  - id: "ev-doc-sso"
+    path: "cim-portal-client/docs/Keycloak-SSO-dev.md"
+    kind: "doc"
+    strength: "medium"
+    reason: "Documents Keycloak as the dev IdP and how to switch to the real company SSO."
+
+unknowns:
+  - "Exact uat/prod Oracle topology (host/RAC/PDB) and the company SSO issuer URL are deployment-time config, not in the repo."
+  - "Whether UserInfo is provisioned by an external HR/IdP sync in production (no sync code present in repo)."
+  - "Production custom URL scheme(s) for launch-app links are configured per-link by admins, not fixed in code."
+
+assumptions:
+  - text: "Production runs the OIDC profile against the company SSO with Oracle; MariaDB + dev-jwt are dev-only modes."
+    confidence: "strong_inference"
+  - text: "The SPA and API are deployed as separate units (static SPA + JVM service), same-origin or CORS-allowed."
+    confidence: "strong_inference"

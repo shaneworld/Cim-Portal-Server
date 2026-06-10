@@ -1,0 +1,88 @@
+<svg viewBox="0 0 1159 629" width="1159" height="629" xmlns="http://www.w3.org/2000/svg" data-routing-version="2">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--color-border-strong)" />
+    </marker>
+  </defs>
+  <rect x="369.6" y="130.0" width="420.0" height="443.4" rx="14" fill="var(--color-bg-sidebar)" stroke="var(--color-border-default)" stroke-width="1" stroke-dasharray="4 4" />
+  <text x="385.6" y="152.0" font-size="11" fill="var(--color-text-tertiary)" font-weight="700" letter-spacing="0.08em">System Boundary</text>
+  <g data-relationship-id="rel-user-spa" data-view-id="container" data-target-label="uses the portal in a browser">
+    <path d="M 298.6 175.0 L 333.1 175.0 Q 343.1 175.0 343.1 185.0 L 343.1 192.0 Q 343.1 202.0 353.1 202.0 L 397.6 202.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 298.6 175.0 L 333.1 175.0 Q 343.1 175.0 343.1 185.0 L 343.1 192.0 Q 343.1 202.0 353.1 202.0 L 397.6 202.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-admin-spa" data-view-id="container" data-target-label="administers links/enums/SSO">
+    <path d="M 298.6 299.0 L 343.1 299.0 Q 353.1 299.0 353.1 289.0 L 353.1 236.0 Q 353.1 226.0 363.1 226.0 L 397.6 226.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 298.6 299.0 L 343.1 299.0 Q 353.1 299.0 353.1 289.0 L 353.1 236.0 Q 353.1 226.0 363.1 226.0 L 397.6 226.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-spa-sso" data-view-id="container" data-target-label="OIDC login (Authorization Code + PKCE)">
+    <path d="M 632.3 214.0 L 746.5 214.0 Q 756.5 214.0 756.5 224.0 L 756.5 231.0 Q 756.5 241.0 766.5 241.0 L 860.6 241.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 632.3 214.0 L 746.5 214.0 Q 756.5 214.0 756.5 224.0 L 756.5 231.0 Q 756.5 241.0 766.5 241.0 L 860.6 241.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-spa-api" data-view-id="container" data-target-label="REST calls with Bearer token">
+    <path d="M 515.0 268.0 L 515.0 311.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 515.0 268.0 L 515.0 311.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-spa-desktop" data-view-id="container" data-target-label="launch via custom URL scheme; else download">
+    <path d="M 515.0 160.0 L 515.0 151.0 Q 515.0 142.0 524.0 142.0 L 688.8 142.0 Q 698.8 142.0 698.8 152.0 L 698.8 355.0 Q 698.8 365.0 708.8 365.0 L 860.6 365.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 515.0 160.0 L 515.0 151.0 Q 515.0 142.0 524.0 142.0 L 688.8 142.0 Q 698.8 142.0 698.8 152.0 L 698.8 355.0 Q 698.8 365.0 708.8 365.0 L 860.6 365.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-api-db" data-view-id="container" data-target-label="reads/writes entities + migrates schema">
+    <path d="M 515.0 419.0 L 515.0 432.2 Q 515.0 437.0 515.0 432.2 L 515.0 432.2 Q 515.0 427.4 515.0 432.2 L 515.0 445.4" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 515.0 419.0 L 515.0 432.2 Q 515.0 437.0 515.0 432.2 L 515.0 432.2 Q 515.0 427.4 515.0 432.2 L 515.0 445.4" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-api-sso" data-view-id="container" data-target-label="verify SSO JWT via JWKS">
+    <path d="M 632.3 365.0 L 804.1 365.0 Q 814.1 365.0 814.1 355.0 L 814.1 188.0 Q 814.1 178.0 824.1 178.0 L 969.0 178.0 Q 978.0 178.0 978.0 187.0 L 978.0 196.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 632.3 365.0 L 804.1 365.0 Q 814.1 365.0 814.1 355.0 L 814.1 188.0 Q 814.1 178.0 824.1 178.0 L 969.0 178.0 Q 978.0 178.0 978.0 187.0 L 978.0 196.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g class="diagram-node" data-element="sage" data-element-id="portal-user" data-view-id="container" data-target-label="Portal User">
+    <rect x="64.0" y="130.0" width="234.6" height="90.0" rx="12" fill="var(--color-element-sage-fill)" stroke="var(--color-element-sage)" stroke-width="2" />
+    <path d="M 76.0 130.0 H 286.6 Q 298.6 130.0 298.6 142.0 V 149.0 H 64.0 V 142.0 Q 64.0 130.0 76.0 130.0 Z" data-node-header="true" fill="var(--color-element-sage)" fill-opacity="0.18" />
+    <text x="181.3" y="140.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Person</text>
+    <text x="181.3" y="182.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Portal User</text>
+    <text x="181.3" y="200.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Factory/MES staff who open …</text>
+  </g>
+  <g class="diagram-node" data-element="sage" data-element-id="portal-admin" data-view-id="container" data-target-label="Portal Administrator">
+    <rect x="64.0" y="254.0" width="234.6" height="90.0" rx="12" fill="var(--color-element-sage-fill)" stroke="var(--color-element-sage)" stroke-width="2" />
+    <path d="M 76.0 254.0 H 286.6 Q 298.6 254.0 298.6 266.0 V 273.0 H 64.0 V 266.0 Q 64.0 254.0 76.0 254.0 Z" data-node-header="true" fill="var(--color-element-sage)" fill-opacity="0.18" />
+    <text x="181.3" y="264.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Person</text>
+    <text x="181.3" y="306.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Portal Administrator</text>
+    <text x="181.3" y="324.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">PORTAL_ADMIN role; configur…</text>
+  </g>
+  <g class="diagram-node" data-element="plum" data-element-id="spa" data-view-id="container" data-target-label="Web SPA (cim-portal-client)">
+    <rect x="397.6" y="160.0" width="234.6" height="108.0" rx="12" fill="var(--color-element-plum-fill)" stroke="var(--color-element-plum)" stroke-width="2" />
+    <path d="M 409.6 160.0 H 620.3 Q 632.3 160.0 632.3 172.0 V 179.0 H 397.6 V 172.0 Q 397.6 160.0 409.6 160.0 Z" data-node-header="true" fill="var(--color-element-plum)" fill-opacity="0.18" />
+    <text x="515.0" y="170.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Container</text>
+    <text x="515.0" y="212.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Web SPA</text>
+    <text x="515.0" y="230.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">(cim-portal-client)</text>
+    <text x="515.0" y="248.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Vue 3, TypeScript, Vite, Ta…</text>
+  </g>
+  <g class="diagram-node" data-element="plum" data-element-id="backend-api" data-view-id="container" data-target-label="Portal API (cim-portal-server)">
+    <rect x="397.6" y="311.0" width="234.6" height="108.0" rx="12" fill="var(--color-element-plum-fill)" stroke="var(--color-element-plum)" stroke-width="2" />
+    <path d="M 409.6 311.0 H 620.3 Q 632.3 311.0 632.3 323.0 V 330.0 H 397.6 V 323.0 Q 397.6 311.0 409.6 311.0 Z" data-node-header="true" fill="var(--color-element-plum)" fill-opacity="0.18" />
+    <text x="515.0" y="321.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Container</text>
+    <text x="515.0" y="363.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Portal API</text>
+    <text x="515.0" y="381.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">(cim-portal-server)</text>
+    <text x="515.0" y="399.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Spring Boot 3.3.5, Spring S…</text>
+  </g>
+  <g class="diagram-node" data-element="slate" data-element-id="relational-db" data-view-id="container" data-target-label="Relational Database">
+    <rect x="397.6" y="445.4" width="234.6" height="90.0" rx="12" fill="var(--color-element-slate-fill)" stroke="var(--color-element-slate)" stroke-width="2" />
+    <path d="M 409.6 445.4 H 620.3 Q 632.3 445.4 632.3 457.4 V 464.4 H 397.6 V 457.4 Q 397.6 445.4 409.6 445.4 Z" data-node-header="true" fill="var(--color-element-slate)" fill-opacity="0.18" />
+    <text x="515.0" y="455.6" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Database</text>
+    <text x="515.0" y="497.4" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Relational Database</text>
+    <text x="515.0" y="515.4" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Oracle (uat/prod) / MariaDB…</text>
+  </g>
+  <g class="diagram-node" data-element="ochre" data-element-id="company-sso" data-view-id="container" data-target-label="Company SSO (OIDC IdP)">
+    <rect x="860.6" y="196.0" width="234.6" height="90.0" rx="12" fill="var(--color-element-ochre-fill)" stroke="var(--color-element-ochre)" stroke-width="2" />
+    <path d="M 872.6 196.0 H 1083.3 Q 1095.3 196.0 1095.3 208.0 V 215.0 H 860.6 V 208.0 Q 860.6 196.0 872.6 196.0 Z" data-node-header="true" fill="var(--color-element-ochre)" fill-opacity="0.18" />
+    <text x="978.0" y="206.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">External System</text>
+    <text x="978.0" y="248.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Company SSO (OIDC IdP)</text>
+    <text x="978.0" y="266.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">OpenID Connect (Authorizati…</text>
+  </g>
+  <g class="diagram-node" data-element="ochre" data-element-id="local-desktop-app" data-view-id="container" data-target-label="Local Desktop App">
+    <rect x="860.6" y="320.0" width="234.6" height="90.0" rx="12" fill="var(--color-element-ochre-fill)" stroke="var(--color-element-ochre)" stroke-width="2" />
+    <path d="M 872.6 320.0 H 1083.3 Q 1095.3 320.0 1095.3 332.0 V 339.0 H 860.6 V 332.0 Q 860.6 320.0 872.6 320.0 Z" data-node-header="true" fill="var(--color-element-ochre)" fill-opacity="0.18" />
+    <text x="978.0" y="330.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">External System</text>
+    <text x="978.0" y="372.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Local Desktop App</text>
+    <text x="978.0" y="390.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Windows custom URL scheme /…</text>
+  </g>
+</svg>

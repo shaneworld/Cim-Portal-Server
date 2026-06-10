@@ -1,0 +1,83 @@
+<svg viewBox="0 0 889 704" width="889" height="704" xmlns="http://www.w3.org/2000/svg" data-routing-version="2">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--color-border-strong)" />
+    </marker>
+  </defs>
+  <rect x="64.0" y="130.0" width="458.0" height="410.0" rx="14" fill="var(--color-bg-sidebar)" stroke="var(--color-border-default)" stroke-width="1" stroke-dasharray="4 4" />
+  <text x="80.0" y="152.0" font-size="11" fill="var(--color-text-tertiary)" font-weight="700" letter-spacing="0.08em">Web SPA (cim-portal-client) [Container Boundary]</text>
+  <g data-relationship-id="rel-spaauth-sso" data-view-id="component-spa" data-target-label="PKCE redirect + token exchange">
+    <path d="M 189.0 492.0 L 189.0 522.9 Q 189.0 525.0 191.2 525.0 L 191.2 525.0 Q 193.3 525.0 193.3 527.1 L 193.3 558.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 189.0 492.0 L 189.0 522.9 Q 189.0 525.0 191.2 525.0 L 191.2 525.0 Q 193.3 525.0 193.3 527.1 L 193.3 558.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-spaauth-client" data-view-id="component-spa" data-target-label="config / login / me requests">
+    <path d="M 92.0 447.0 L 74.0 447.0 Q 64.0 447.0 64.0 437.0 L 64.0 209.0 Q 64.0 199.0 74.0 199.0 L 92.0 199.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 92.0 447.0 L 74.0 447.0 Q 64.0 447.0 64.0 437.0 L 64.0 209.0 Q 64.0 199.0 74.0 199.0 L 92.0 199.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-spadash-client" data-view-id="component-spa" data-target-label="home request">
+    <path d="M 314.0 199.0 L 272.0 199.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 314.0 199.0 L 272.0 199.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-spaadmin-client" data-view-id="component-spa" data-target-label="admin CRUD requests">
+    <path d="M 182.0 274.0 L 182.0 259.0 Q 182.0 256.0 182.0 259.0 L 182.0 259.0 Q 182.0 262.0 182.0 259.0 L 182.0 244.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 182.0 274.0 L 182.0 259.0 Q 182.0 256.0 182.0 259.0 L 182.0 259.0 Q 182.0 262.0 182.0 259.0 L 182.0 244.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-spaclient-api" data-view-id="component-spa" data-target-label="REST over HTTPS with Bearer token">
+    <path d="M 182.0 154.0 L 182.0 137.0 Q 182.0 127.0 192.0 127.0 L 697.3 127.0 Q 707.3 127.0 707.3 137.0 L 707.3 176.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 182.0 154.0 L 182.0 137.0 Q 182.0 127.0 192.0 127.0 L 697.3 127.0 Q 707.3 127.0 707.3 137.0 L 707.3 176.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g data-relationship-id="rel-spadash-desktop" data-view-id="component-spa" data-target-label="launch local app or fall back to download">
+    <path d="M 404.0 244.0 L 404.0 371.0 Q 404.0 381.0 414.0 381.0 L 454.0 381.0 Q 464.0 381.0 464.0 391.0 L 464.0 558.0" stroke="var(--color-border-strong)" stroke-width="1.5" fill="none" marker-end="url(#arrow)" />
+    <path d="M 404.0 244.0 L 404.0 371.0 Q 404.0 381.0 414.0 381.0 L 454.0 381.0 Q 464.0 381.0 464.0 391.0 L 464.0 558.0" stroke="transparent" stroke-width="14" fill="none" />
+  </g>
+  <g class="diagram-node" data-element="teal" data-element-id="spa-auth" data-view-id="component-spa" data-target-label="Auth &amp; SSO Module">
+    <rect x="92.0" y="402.0" width="194.0" height="90.0" rx="12" fill="var(--color-element-teal-fill)" stroke="var(--color-element-teal)" stroke-width="2" />
+    <path d="M 104.0 402.0 H 274.0 Q 286.0 402.0 286.0 414.0 V 421.0 H 92.0 V 414.0 Q 92.0 402.0 104.0 402.0 Z" data-node-header="true" fill="var(--color-element-teal)" fill-opacity="0.18" />
+    <text x="189.0" y="412.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Component</text>
+    <text x="189.0" y="454.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Auth &amp; SSO Module</text>
+    <text x="189.0" y="472.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">oidc-client-ts, Pinia</text>
+  </g>
+  <g class="diagram-node" data-element="teal" data-element-id="spa-api-client" data-view-id="component-spa" data-target-label="API Client">
+    <rect x="92.0" y="154.0" width="180.0" height="90.0" rx="12" fill="var(--color-element-teal-fill)" stroke="var(--color-element-teal)" stroke-width="2" />
+    <path d="M 104.0 154.0 H 260.0 Q 272.0 154.0 272.0 166.0 V 173.0 H 92.0 V 166.0 Q 92.0 154.0 104.0 154.0 Z" data-node-header="true" fill="var(--color-element-teal)" fill-opacity="0.18" />
+    <text x="182.0" y="164.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Component</text>
+    <text x="182.0" y="206.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">API Client</text>
+    <text x="182.0" y="224.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">TypeScript fetch</text>
+  </g>
+  <g class="diagram-node" data-element="teal" data-element-id="spa-dashboard" data-view-id="component-spa" data-target-label="Dashboard UI">
+    <rect x="314.0" y="154.0" width="180.0" height="90.0" rx="12" fill="var(--color-element-teal-fill)" stroke="var(--color-element-teal)" stroke-width="2" />
+    <path d="M 326.0 154.0 H 482.0 Q 494.0 154.0 494.0 166.0 V 173.0 H 314.0 V 166.0 Q 314.0 154.0 326.0 154.0 Z" data-node-header="true" fill="var(--color-element-teal)" fill-opacity="0.18" />
+    <text x="404.0" y="164.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Component</text>
+    <text x="404.0" y="206.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Dashboard UI</text>
+    <text x="404.0" y="224.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Vue 3</text>
+  </g>
+  <g class="diagram-node" data-element="teal" data-element-id="spa-admin" data-view-id="component-spa" data-target-label="Admin UI">
+    <rect x="92.0" y="274.0" width="180.0" height="90.0" rx="12" fill="var(--color-element-teal-fill)" stroke="var(--color-element-teal)" stroke-width="2" />
+    <path d="M 104.0 274.0 H 260.0 Q 272.0 274.0 272.0 286.0 V 293.0 H 92.0 V 286.0 Q 92.0 274.0 104.0 274.0 Z" data-node-header="true" fill="var(--color-element-teal)" fill-opacity="0.18" />
+    <text x="182.0" y="284.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Component</text>
+    <text x="182.0" y="326.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Admin UI</text>
+    <text x="182.0" y="344.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Vue 3</text>
+  </g>
+  <g class="diagram-node" data-element="plum" data-element-id="backend-api" data-view-id="component-spa" data-target-label="Portal API (cim-portal-server)">
+    <rect x="590.0" y="176.0" width="234.6" height="108.0" rx="12" fill="var(--color-element-plum-fill)" stroke="var(--color-element-plum)" stroke-width="2" />
+    <path d="M 602.0 176.0 H 812.6 Q 824.6 176.0 824.6 188.0 V 195.0 H 590.0 V 188.0 Q 590.0 176.0 602.0 176.0 Z" data-node-header="true" fill="var(--color-element-plum)" fill-opacity="0.18" />
+    <text x="707.3" y="186.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">Container</text>
+    <text x="707.3" y="228.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Portal API</text>
+    <text x="707.3" y="246.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">(cim-portal-server)</text>
+    <text x="707.3" y="264.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Spring Boot 3.3.5, Spring S…</text>
+  </g>
+  <g class="diagram-node" data-element="ochre" data-element-id="company-sso" data-view-id="component-spa" data-target-label="Company SSO (OIDC IdP)">
+    <rect x="76.0" y="558.0" width="234.6" height="90.0" rx="12" fill="var(--color-element-ochre-fill)" stroke="var(--color-element-ochre)" stroke-width="2" />
+    <path d="M 88.0 558.0 H 298.6 Q 310.6 558.0 310.6 570.0 V 577.0 H 76.0 V 570.0 Q 76.0 558.0 88.0 558.0 Z" data-node-header="true" fill="var(--color-element-ochre)" fill-opacity="0.18" />
+    <text x="193.3" y="568.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">External System</text>
+    <text x="193.3" y="610.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Company SSO (OIDC IdP)</text>
+    <text x="193.3" y="628.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">OpenID Connect (Authorizati…</text>
+  </g>
+  <g class="diagram-node" data-element="ochre" data-element-id="local-desktop-app" data-view-id="component-spa" data-target-label="Local Desktop App">
+    <rect x="346.6" y="558.0" width="234.6" height="90.0" rx="12" fill="var(--color-element-ochre-fill)" stroke="var(--color-element-ochre)" stroke-width="2" />
+    <path d="M 358.6 558.0 H 569.3 Q 581.3 558.0 581.3 570.0 V 577.0 H 346.6 V 570.0 Q 346.6 558.0 358.6 558.0 Z" data-node-header="true" fill="var(--color-element-ochre)" fill-opacity="0.18" />
+    <text x="464.0" y="568.2" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="var(--color-text-primary)">External System</text>
+    <text x="464.0" y="610.0" text-anchor="middle" font-size="14" font-weight="600" fill="var(--color-text-primary)">Local Desktop App</text>
+    <text x="464.0" y="628.0" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">Windows custom URL scheme /…</text>
+  </g>
+</svg>

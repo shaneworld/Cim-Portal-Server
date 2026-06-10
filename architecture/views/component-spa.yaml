@@ -1,0 +1,31 @@
+version: 2
+id: "component-spa"
+type: "component"
+title: "Web SPA — Components"
+parent_container_id: "spa"
+audience:
+  - "senior_architects"
+purpose: "Internal module boundaries of the Vue SPA and how they reach the backend and SSO."
+scope: "Components inside the SPA plus the backend API, company SSO, and local desktop app they interact with."
+source_model: "architecture/model.yaml"
+element_ids:
+  - "spa-auth"
+  - "spa-api-client"
+  - "spa-dashboard"
+  - "spa-admin"
+  - "backend-api"
+  - "company-sso"
+  - "local-desktop-app"
+relationship_ids:
+  - "rel-spaauth-sso"
+  - "rel-spaauth-client"
+  - "rel-spadash-client"
+  - "rel-spaadmin-client"
+  - "rel-spaclient-api"
+  - "rel-spadash-desktop"
+assumptions: []
+unknowns: []
+notes:
+  - "Auth & SSO module drives the login flow: auto-SSO once per session (sso_attempted guard), internal-login fallback, and skip-if-already-authenticated."
+  - "All HTTP goes through the shared API Client (attaches Bearer token, handles 401)."
+  - "Dashboard launches local apps via a custom URL scheme with a ~2s detection + download fallback."

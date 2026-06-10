@@ -1,0 +1,30 @@
+version: 2
+id: "system-context"
+type: "system_context"
+title: "AP1 IT CIM Portal — System Context"
+audience:
+  - "new_hires"
+  - "pms"
+  - "senior_architects"
+purpose: "Who uses the portal and which external systems it depends on."
+scope: "The portal as a single system plus its people and external dependencies."
+source_model: "architecture/model.yaml"
+element_ids:
+  - "portal-user"
+  - "portal-admin"
+  - "cim-portal"
+  - "company-sso"
+  - "local-desktop-app"
+relationship_ids:
+  - "rel-ctx-user"
+  - "rel-ctx-admin"
+  - "rel-ctx-sso"
+  - "rel-ctx-desktop"
+assumptions:
+  - text: "uat/prod authenticate against the company OIDC IdP; Keycloak is the dev/test stand-in."
+    confidence: "strong_inference"
+unknowns:
+  - "Company SSO issuer URL and any HR/IdP user-provisioning sync are environment config, not in the repo."
+notes:
+  - "Roles/department come from the portal's own UserInfo directory, not from SSO claims."
+  - "Local Desktop App launch depends on a per-link custom URL scheme registered on client machines; otherwise the card falls back to a download URL."

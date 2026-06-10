@@ -1,0 +1,38 @@
+version: 2
+id: "component-backend-api"
+type: "component"
+title: "Portal API — Components"
+parent_container_id: "backend-api"
+audience:
+  - "senior_architects"
+purpose: "Internal module boundaries of the Spring Boot API and what owns which data."
+scope: "Components inside backend-api plus the relational DB and company SSO it depends on."
+source_model: "architecture/model.yaml"
+element_ids:
+  - "be-auth-security"
+  - "be-portal"
+  - "be-link"
+  - "be-enum"
+  - "be-settings"
+  - "be-user"
+  - "be-persistence"
+  - "relational-db"
+  - "company-sso"
+relationship_ids:
+  - "rel-beauth-sso"
+  - "rel-beauth-user"
+  - "rel-beauth-settings"
+  - "rel-beportal-link"
+  - "rel-beportal-user"
+  - "rel-beportal-settings"
+  - "rel-belink-persist"
+  - "rel-beenum-persist"
+  - "rel-besettings-persist"
+  - "rel-beuser-persist"
+  - "rel-persist-db"
+assumptions: []
+unknowns: []
+notes:
+  - "Auth & Security routes JWT validation by issuer (portal key vs company-SSO JWKS) and maps the configured username claim → employeeId → UserInfo roles/department."
+  - "Portal/Home returns ALL active links with a per-link `accessible` flag and hides url/downloadUrl when the user lacks the grant (server-side locked cards)."
+  - "Systems of record: be-link (Link, LinkAccessGrant), be-enum (EnumValue), be-settings (SecuritySetting), be-user (UserInfo). be-persistence is the shared JPA+Flyway layer."
