@@ -1,0 +1,21 @@
+# Copy to /etc/cim-portal/application-prod.yml on the host, fill real values,
+# then:  chown root:cimportal  &&  chmod 640.  DO NOT commit the filled-in copy.
+# Loaded by the service via --spring.config.additional-location=file:/etc/cim-portal/
+server:
+  address: 127.0.0.1     # bind localhost only; Nginx reverse-proxies to it
+  port: 8080
+
+spring:
+  datasource:
+    url: "jdbc:oracle:thin:@//ORACLE_HOST:1521/PDB_NAME"
+    username: "CIM_PORTAL"
+    password: "CHANGE_ME"
+
+app:
+  security:
+    portal-jwt:
+      # Stable RSA key pair (generated once via gen-portal-jwt-key.sh).
+      # Without these, the backend logs a WARN and uses an EPHEMERAL key —
+      # internal-login tokens would be invalidated on every restart.
+      private-key-location: /etc/cim-portal/portal-jwt-private.pem
+      public-key-location:  /etc/cim-portal/portal-jwt-public.pem

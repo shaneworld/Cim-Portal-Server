@@ -1,0 +1,25 @@
+[Unit]
+Description=AP1 IT CIM Portal API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=cimportal
+Group=cimportal
+EnvironmentFile=-/etc/cim-portal/portal.env
+ExecStart=/usr/bin/java $JAVA_OPTS -jar /opt/cim-portal/portal.jar \
+  --spring.profiles.active=prod \
+  --spring.config.additional-location=file:/etc/cim-portal/
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+# hardening
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadOnlyPaths=/opt/cim-portal
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
