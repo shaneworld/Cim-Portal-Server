@@ -2,13 +2,13 @@
 #
 # post-checkout — 按当前 git 分支自动选择 Spring profile。
 #
-# 机制:写入 backend/config/application.yml(已 gitignore)。Spring Boot 默认会从
+# 机制:写入 config/application.yml(已 gitignore)。Spring Boot 默认会从
 # 工作目录的 ./config/ 加载配置(优先级高于 classpath),因此无论用
-# `mvn spring-boot:run` 还是 `java -jar`(在 backend/ 下运行)都会自动选中对应 profile,
+# `mvn spring-boot:run` 还是 `java -jar`(在仓库根运行)都会自动选中对应 profile,
 # 无需手动指定 SPRING_PROFILES_ACTIVE。该文件不提交,故分支间合并不会冲突。
 #
 # 分支 → profile 映射:
-#   dev     → dev   (本地 MariaDB + mock OIDC + 演示种子)
+#   dev     → dev   (本地 Oracle + mock OIDC + 演示种子)
 #   hotfix  → uat   (Oracle + 真实 OIDC,prod-like 验证)
 #   release → prod  (Oracle + 真实 OIDC)
 #   其他     → dev   (默认)
@@ -28,7 +28,7 @@ case "$branch" in
 esac
 
 repo_root=$(git rev-parse --show-toplevel)
-target_dir="$repo_root/backend/config"
+target_dir="$repo_root/config"
 mkdir -p "$target_dir"
 
 cat > "$target_dir/application.yml" <<EOF
@@ -39,4 +39,4 @@ spring:
     active: $profile
 EOF
 
-echo "[post-checkout] 分支 '$branch' → Spring profile '$profile'(已写入 backend/config/application.yml)"
+echo "[post-checkout] 分支 '$branch' → Spring profile '$profile'(已写入 config/application.yml)"

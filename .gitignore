@@ -20,4 +20,4 @@ out/
 *.log
 
 # Auto-generated per-branch Spring profile override (written by .githooks/post-checkout)
-backend/config/
+config/
