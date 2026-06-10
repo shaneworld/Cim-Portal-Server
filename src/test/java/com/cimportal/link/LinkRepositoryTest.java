@@ -1,13 +1,13 @@
 package com.cimportal.link;
 
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LinkRepositoryTest extends MariaDbIntegrationTest {
+class LinkRepositoryTest extends OracleIntegrationTest {
     @Autowired LinkRepository links;
     @Autowired LinkAccessGrantRepository grants;
 

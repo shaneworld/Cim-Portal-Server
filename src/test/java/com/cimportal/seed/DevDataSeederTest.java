@@ -3,7 +3,7 @@ package com.cimportal.seed;
 import com.cimportal.enumvalue.EnumValueRepository;
 import com.cimportal.link.LinkAccessGrantRepository;
 import com.cimportal.link.LinkRepository;
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import com.cimportal.user.UserInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DevDataSeederTest extends MariaDbIntegrationTest {
+class DevDataSeederTest extends OracleIntegrationTest {
     @Autowired EnumValueRepository enums;
     @Autowired LinkRepository links;
     @Autowired LinkAccessGrantRepository grants;

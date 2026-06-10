@@ -1,6 +1,6 @@
 package com.cimportal.setting;
 
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import com.cimportal.support.TestJwts;
 import com.cimportal.user.UserInfo;
 import com.cimportal.user.UserInfoRepository;
@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
-class SecuritySettingControllerTest extends MariaDbIntegrationTest {
+class SecuritySettingControllerTest extends OracleIntegrationTest {
 
     @Autowired MockMvc mvc;
     @Autowired TestJwts jwts;

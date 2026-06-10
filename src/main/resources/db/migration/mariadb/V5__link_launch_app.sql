@@ -1,2 +1,0 @@
-ALTER TABLE link ADD COLUMN launch_app BOOLEAN NOT NULL DEFAULT FALSE,
-                 ADD COLUMN download_url VARCHAR(1024) NULL;

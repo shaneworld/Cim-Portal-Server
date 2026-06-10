@@ -1,13 +1,13 @@
 package com.cimportal.enumvalue;
 
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EnumValueRepositoryTest extends MariaDbIntegrationTest {
+class EnumValueRepositoryTest extends OracleIntegrationTest {
 
     @Autowired EnumValueRepository repo;
 

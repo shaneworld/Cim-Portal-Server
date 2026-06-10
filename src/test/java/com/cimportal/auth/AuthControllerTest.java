@@ -3,7 +3,7 @@ package com.cimportal.auth;
 import com.cimportal.setting.SecuritySetting;
 import com.cimportal.setting.SecuritySettingRepository;
 import com.cimportal.setting.SecuritySettingService;
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import com.cimportal.user.UserInfo;
 import com.cimportal.user.UserInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
-class AuthControllerTest extends MariaDbIntegrationTest {
+class AuthControllerTest extends OracleIntegrationTest {
 
     private static final String DEV_PASSWORD = "cimp@123";
 
