@@ -1,6 +1,6 @@
 package com.cimportal;
 
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
-class OpenApiDocsTest extends MariaDbIntegrationTest {
+class OpenApiDocsTest extends OracleIntegrationTest {
     @Autowired MockMvc mvc;
 
     @Test

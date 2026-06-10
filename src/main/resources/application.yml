@@ -1,10 +1,6 @@
 spring:
   application:
     name: cim-portal
-  profiles:
-    group:
-      # 一键本地 Oracle 调试:dev(dev-jwt 登录 + 自动种子)+ oracle-db(把数据源/迁移覆盖为 Oracle)
-      oracle-dev: dev,oracle-db
   jpa:
     open-in-view: false
     hibernate:
@@ -35,11 +31,12 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:mariadb://127.0.0.1:3306/cim_portal
-    username: cim_portal
-    password: cim_portal
+    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/XEPDB1}
+    username: ${DB_USER:cim_portal}
+    password: ${DB_PASSWORD:cim_portal}
+    driver-class-name: oracle.jdbc.OracleDriver
   flyway:
-    locations: classpath:db/migration/mariadb
+    locations: classpath:db/migration/oracle
 app:
   security:
     mode: dev-jwt
@@ -91,17 +88,3 @@ app:
   security:
     mode: dev-jwt
 
----
-# 仅作为叠加 profile,与 dev 组合使用(通过 profile group `oracle-dev`):
-# 覆盖数据源与 Flyway 迁移目录为 Oracle,其余(dev-jwt 登录、/dev/token、自动种子)沿用 dev。
-spring:
-  config:
-    activate:
-      on-profile: oracle-db
-  datasource:
-    url: ${DB_URL:jdbc:oracle:thin:@//localhost:1521/XEPDB1}
-    username: ${DB_USER:cim_portal}
-    password: ${DB_PASSWORD:cim_portal}
-    driver-class-name: oracle.jdbc.OracleDriver
-  flyway:
-    locations: classpath:db/migration/oracle

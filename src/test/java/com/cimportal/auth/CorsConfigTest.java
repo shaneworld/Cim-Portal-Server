@@ -1,6 +1,6 @@
 package com.cimportal.auth;
 
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @TestPropertySource(properties = "app.cors.allowed-origins=http://localhost:5173")
-class CorsConfigTest extends MariaDbIntegrationTest {
+class CorsConfigTest extends OracleIntegrationTest {
 
     @Autowired
     MockMvc mockMvc;

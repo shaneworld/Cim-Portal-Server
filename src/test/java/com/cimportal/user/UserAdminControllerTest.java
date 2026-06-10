@@ -1,6 +1,6 @@
 package com.cimportal.user;
 
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import com.cimportal.support.TestJwts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
-class UserAdminControllerTest extends MariaDbIntegrationTest {
+class UserAdminControllerTest extends OracleIntegrationTest {
     @Autowired MockMvc mvc;
     @Autowired TestJwts jwts;
     @Autowired UserInfoRepository users;

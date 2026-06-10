@@ -5,7 +5,7 @@ import com.cimportal.enumvalue.EnumValue;
 import com.cimportal.enumvalue.EnumValueRepository;
 import com.cimportal.link.*;
 import com.cimportal.link.LinkTestFactory;
-import com.cimportal.support.MariaDbIntegrationTest;
+import com.cimportal.support.OracleIntegrationTest;
 import com.cimportal.support.TestJwts;
 import com.cimportal.user.UserInfo;
 import com.cimportal.user.UserInfoRepository;
@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
-class HomeIntegrationTest extends MariaDbIntegrationTest {
+class HomeIntegrationTest extends OracleIntegrationTest {
     @Autowired MockMvc mvc;
     @Autowired TestJwts jwts;
     @Autowired UserInfoRepository users;
