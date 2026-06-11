@@ -7,7 +7,9 @@ public record EnumValueRequest(
     @NotBlank String labelZh,
     @NotBlank String labelEn,
     int sortOrder,
-    Boolean active
+    Boolean active,
+    String color,
+    String icon
 ) {
     public boolean activeOrDefault() { return active == null || active; }
 }

@@ -24,6 +24,8 @@ public class EnumValue {
     @Column(name = "label_en", nullable = false, length = 255) private String labelEn;
     @Column(name = "sort_order", nullable = false) private int sortOrder;
     @Column(nullable = false) private boolean active = true;
+    @Column(length = 16) private String color;
+    @Column(length = 64) private String icon;
 
     @CreationTimestamp @Column(name = "created_at", updatable = false) private Instant createdAt;
     @UpdateTimestamp  @Column(name = "updated_at") private Instant updatedAt;
@@ -46,8 +48,13 @@ public class EnumValue {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
+    public String getColor() { return color; }
+    public String getIcon() { return icon; }
+
     public void setLabelZh(String v) { this.labelZh = v; }
     public void setLabelEn(String v) { this.labelEn = v; }
     public void setSortOrder(int v) { this.sortOrder = v; }
     public void setActive(boolean v) { this.active = v; }
+    public void setColor(String v) { this.color = v; }
+    public void setIcon(String v) { this.icon = v; }
 }

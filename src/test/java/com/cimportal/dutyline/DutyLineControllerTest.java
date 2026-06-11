@@ -43,9 +43,9 @@ class DutyLineControllerTest extends OracleIntegrationTest {
         admin = "Bearer " + jwts.bearerFor("ADMIN1");
         operator = "Bearer " + jwts.bearerFor("OP1");
 
-        // Reset duty_lines_enabled to true
+        // Reset infoPanelEnabled to true
         SecuritySetting s = settingRepo.findById(1L).orElseThrow();
-        s.setDutyLinesEnabled(true);
+        s.setInfoPanelEnabled(true);
         settingRepo.save(s);
         settingService.invalidateCache();
     }
@@ -175,26 +175,26 @@ class DutyLineControllerTest extends OracleIntegrationTest {
     // ── Config flag ───────────────────────────────────────────────────────────
 
     @Test
-    void publicConfig_includesDutyLinesEnabled() throws Exception {
+    void publicConfig_includesInfoPanelEnabled() throws Exception {
         mvc.perform(get("/api/portal/config"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.dutyLinesEnabled").value(true));
+            .andExpect(jsonPath("$.infoPanelEnabled").value(true));
     }
 
     @Test
-    void adminPut_canChangeDutyLinesEnabled() throws Exception {
+    void adminPut_canChangeInfoPanelEnabled() throws Exception {
         String req = """
-            {"dutyLinesEnabled":false}
+            {"infoPanelEnabled":false}
             """;
         mvc.perform(put("/api/admin/security-settings")
                 .header("Authorization", admin)
                 .contentType(MediaType.APPLICATION_JSON).content(req))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.dutyLinesEnabled").value(false));
+            .andExpect(jsonPath("$.infoPanelEnabled").value(false));
 
         settingService.invalidateCache();
         mvc.perform(get("/api/portal/config"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.dutyLinesEnabled").value(false));
+            .andExpect(jsonPath("$.infoPanelEnabled").value(false));
     }
 }

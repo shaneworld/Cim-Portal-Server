@@ -3,6 +3,9 @@ package com.cimportal.announcement;
 import com.cimportal.announcement.dto.AnnouncementRequest;
 import com.cimportal.announcement.dto.AnnouncementResponse;
 import com.cimportal.common.error.ApiException;
+import com.cimportal.enumvalue.EnumCategory;
+import com.cimportal.enumvalue.EnumValue;
+import com.cimportal.enumvalue.EnumValueRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,11 +16,11 @@ import java.util.List;
 public class AnnouncementService {
 
     private final AnnouncementRepository repo;
-    private final AnnouncementTypeRepository typeRepo;
+    private final EnumValueRepository enumRepo;
 
-    public AnnouncementService(AnnouncementRepository repo, AnnouncementTypeRepository typeRepo) {
+    public AnnouncementService(AnnouncementRepository repo, EnumValueRepository enumRepo) {
         this.repo = repo;
-        this.typeRepo = typeRepo;
+        this.enumRepo = enumRepo;
     }
 
     @Transactional(readOnly = true)
@@ -80,16 +83,14 @@ public class AnnouncementService {
     }
 
     private void validateTypeCode(String typeCode) {
-        AnnouncementType type = typeRepo.findByCode(typeCode)
-            .orElseThrow(() -> ApiException.badRequest("公告类型 '" + typeCode + "' 不存在"));
-        if (!type.isActive())
-            throw ApiException.badRequest("公告类型 '" + typeCode + "' 已停用");
+        if (!enumRepo.existsByCategoryAndCodeAndActiveTrue(EnumCategory.ANNOUNCEMENT_TYPE, typeCode))
+            throw ApiException.badRequest("公告类型 '" + typeCode + "' 不存在或已停用");
     }
 
     private AnnouncementResponse toResponse(Announcement a) {
-        AnnouncementType type = typeRepo.findByCode(a.getTypeCode()).orElse(null);
-        String color  = type != null ? type.getColor()   : "slate";
-        String icon   = type != null ? type.getIcon()    : "info";
+        EnumValue type = enumRepo.findByCategoryAndCode(EnumCategory.ANNOUNCEMENT_TYPE, a.getTypeCode()).orElse(null);
+        String color   = type != null && type.getColor() != null ? type.getColor() : "slate";
+        String icon    = type != null && type.getIcon()  != null ? type.getIcon()  : "info";
         String labelZh = type != null ? type.getLabelZh() : a.getTypeCode();
         String labelEn = type != null ? type.getLabelEn() : a.getTypeCode();
         return new AnnouncementResponse(

@@ -41,8 +41,7 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
         s.setSsoClientId(null);
         s.setSsoScopes("openid profile");
         s.setSsoUsernameClaim("preferred_username");
-        s.setAnnouncementsEnabled(true);
-        s.setDutyLinesEnabled(true);
+        s.setInfoPanelEnabled(true);
         s.setUpdatedAt(null);
         settingRepo.save(s);
 

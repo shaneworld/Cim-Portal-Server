@@ -6,6 +6,5 @@ public record PublicConfig(
     String clientId,
     String scopes,
     String usernameClaim,
-    boolean announcementsEnabled,
-    boolean dutyLinesEnabled
+    boolean infoPanelEnabled
 ) { }

@@ -9,4 +9,5 @@ public interface EnumValueRepository extends JpaRepository<EnumValue, Long> {
     List<EnumValue> findByCategoryAndActiveTrueOrderBySortOrderAscIdAsc(EnumCategory category);
     Optional<EnumValue> findByCategoryAndCode(EnumCategory category, String code);
     boolean existsByCategoryAndCode(EnumCategory category, String code);
+    boolean existsByCategoryAndCodeAndActiveTrue(EnumCategory category, String code);
 }
