@@ -5,12 +5,13 @@
 > 取代早前的「公告+收藏」设计 —— 范围扩展为四块,顺序 A→B→C→D,各自提交。
 
 ## 已确认决策
-- 欢迎面板:**保留概念(LIVE/问候/部门角色/时钟/统计),精简为更矮更紧凑的单行布局**。
+- 欢迎面板:**自适应** —— 当公告或值班面板**任一启用**(出现信息行)时,切换为 mockup 的紧凑单行;两者都关时,**保持现有尺寸与设计不变**。
 - 公告类型:**后台可管理的类型清单**(每类型含 颜色 + 图标),非固定枚举。
 - 公告开关:**管理员可全局启用/停用**;停用则首页不渲染公告区(且不请求)。
 - 公告展示:**单一面板**,逐条按其类型的颜色/图标着色;置顶优先;前端 localStorage 忽略;正文纯文本。
-- 值班电话:后台可管理(中/英名 + 号码 + 排序 + 启用);首页右侧面板;有数据才显示(无开关)。
+- 值班电话:后台可管理(中/英名 + 号码 + 排序 + 启用);**管理员可全局启用/停用**(与公告并列两个开关);启用且有 active 数据时才在首页右侧显示。
 - 收藏:仅可访问链接可收藏;无排序(沿用早前设计)。
+- **环境指示器:`SystemCard` 的环境徽标(DEV/UAT/RELEASE,现有 `LINK_ENVS` 彩点设计)保持不变**(mockup 中的简化样式仅示意);收藏只新增星标,不动环境徽标。
 
 ## 现状(已核对)
 - 首页 `HomeView.vue`:`AppHeader → HeroPanel → GlobalSearch → SystemGrid`。`HeroPanel.vue` 现为 GlassCard 双列(1.1fr/1fr):左 LIVE+问候+部门·角色·工号+时钟,右 3 个大数字统计(text-3xl)。
@@ -21,8 +22,8 @@
 
 ---
 
-## A. 欢迎面板精简(前端)
-重设计 `HeroPanel.vue`:单行/紧凑卡(参考 mockup)—— 左:LIVE 徽标 + 问候(+姓名)+「部门 · 角色 · 工号」+ 时钟;右:3 个**小号**统计磁贴(系统/分类/在线,数字 ~text-xl,而非 text-3xl)。降低内边距与整体高度,保持玻璃风与现有数据来源(props.categories、useClock、auth)。无后端改动。测试:更新/保留 `HeroPanel.spec.ts`。
+## A. 欢迎面板(自适应,前端)
+`HeroPanel.vue` **保留现有布局为默认(展开)态**;新增 `compact` prop:为真时渲染 mockup 的紧凑单行(LIVE 徽标 + 问候(+姓名)+「部门 · 角色 · 工号」+ 时钟;右侧 3 个**小号**统计磁贴 ~text-xl;降低内边距/高度)。`HomeView` 传入 `:compact="config.announcementsEnabled || config.dutyLinesEnabled"`。即:公告/值班任一开启 → 紧凑;两者都关 → 现有尺寸与设计不变。两态共用现有数据源(props.categories、useClock、auth),保持玻璃风。无后端改动。测试:`HeroPanel.spec.ts` 覆盖两态(compact 真/假渲染差异 + 统计值仍在)。
 
 ## B. 公告(可配置类型 + 全局开关 + 单面板)
 
@@ -91,20 +92,22 @@ CREATE TABLE duty_line (
   active    NUMBER(1)     DEFAULT 1 NOT NULL,
   CONSTRAINT pk_duty_line PRIMARY KEY (id)
 );
+ALTER TABLE security_setting ADD (duty_lines_enabled NUMBER(1) DEFAULT 1 NOT NULL);
 ```
 ### 后端
 - `DutyLine` 实体 + 仓库(`findByActiveTrueOrderBySortOrderAsc`)+ 服务;管理 `/api/admin/duty-lines`(CRUD);门户 `GET /api/portal/duty-lines`(登录用户,仅 active,按 sort)。
+- **开关**:`security_setting.duty_lines_enabled` → `PublicConfig` + `AdminSettingView` + `SecuritySettingUpdateRequest` 各加 `dutyLinesEnabled`(与 `announcementsEnabled` 并列)。
 ### 前端
-- `DutyLinesPanel.vue`:首页右侧(与公告同一行;mockup 布局 `grid-cols-[1.95fr_1fr]`,移动端堆叠);拉 active 列表;每行 电话图标 + 中/英名 + 号码;**列表为空则不渲染**。
-- 管理:`DutyLinesAdminView` + 表单(zh/en 名、号码、排序、active)+ 导航/路由 + i18n。
+- `DutyLinesPanel.vue`:首页右侧(与公告同一行;mockup 布局 `grid-cols-[1.95fr_1fr]`,移动端堆叠);**仅当 `config.dutyLinesEnabled` 为真才请求+渲染**,且列表为空时不渲染;每行 电话图标 + 中/英名 + 号码。
+- 管理:`DutyLinesAdminView` + 表单(zh/en 名、号码、排序、active)+ 顶部「值班电话功能 开/关」Switch(写 security-settings 的 `dutyLinesEnabled`)+ 导航/路由 + i18n。
 ### 测试
 - 后端:CRUD + 门户仅 active/排序。`OracleMigrationTest` 9→**10**。前端:i18n 对齐 + 空列表不渲染。
 
 ## D. 收藏 / 我的链接(沿用早前设计,Flyway **V11**)
-- `favorite(employee_id, link_id, created_at, PK(emp,link), FK link ON DELETE CASCADE)`;`Favorite`+仓库;`HomeLink` 加 `boolean favorite`;`HomeService` 标记;`POST/DELETE /api/portal/favorites/{linkId}`(**仅可访问**,锁定→403)。前端 `SystemCard` 星标 + `HomeView` 从 categories 聚合「我的收藏」区。`OracleMigrationTest` 10→**11**。i18n + SystemCard 星标测试。
+- `favorite(employee_id, link_id, created_at, PK(emp,link), FK link ON DELETE CASCADE)`;`Favorite`+仓库;`HomeLink` 加 `boolean favorite`;`HomeService` 标记;`POST/DELETE /api/portal/favorites/{linkId}`(**仅可访问**,锁定→403)。前端 `SystemCard` **仅新增星标(环境徽标 LINK_ENVS 保持现状不变)** + `HomeView` 从 categories 聚合「我的收藏」区。`OracleMigrationTest` 10→**11**。i18n + SystemCard 星标测试(并断言环境徽标仍在)。
 
 ## 首页布局(汇总,见 mockup)
-`AppHeader → HeroPanel(精简) → [公告面板(若启用) | 值班电话面板(若有)] 同一行 → GlobalSearch → 我的收藏 → SystemGrid`。信息行(公告+值班)在功能网格之上,不干扰核心功能。
+`AppHeader → HeroPanel(自适应:任一面板启用→紧凑,否则现状) → [公告面板(若启用) | 值班电话面板(若启用且有数据)] 同一行 → GlobalSearch → 我的收藏 → SystemGrid`。信息行(公告+值班)在功能网格之上,不干扰核心功能。`compact = announcementsEnabled || dutyLinesEnabled`。
 
 ## 范围外(YAGNI)
 公告富文本/受众定向/服务端已读;值班电话点击拨号集成;收藏排序;类型颜色任意 hex(用固定调色板)。

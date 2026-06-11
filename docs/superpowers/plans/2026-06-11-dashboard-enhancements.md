@@ -18,13 +18,14 @@
 
 ---
 
-# A. 欢迎面板精简(前端)
-**Files:** Modify `src/features/dashboard/HeroPanel.vue`;Update `HeroPanel.spec.ts`
-- [ ] **Read** 现 `HeroPanel.vue` + `HeroPanel.spec.ts`。
-- [ ] 重排为紧凑单行:外层 `GlassCard` 改 `flex items-center justify-between gap-4 p-4`(替换 `grid ... p-5`)。左块:LIVE 徽标(保留)+ `h2 text-lg`(原 text-xl)问候 + 一行 `text-xs text-ink-2`「部门 · 角色 · 工号」+ 一行 `text-xs text-ink-3` 时钟。右块:`flex gap-2.5`,3 个统计磁贴 `rounded-xl px-4 py-2 text-center`,数字 `text-xl font-bold`(原 text-3xl extrabold),标签 `text-[11px]`。移动端:`flex-col sm:flex-row`(统计在小屏换行/底部)。保留 `useClock`、`auth`、`stats` 计算。
-- [ ] `HeroPanel.spec.ts`:若断言旧 class/结构,改为断言文本(问候/统计值)存在,避免脆弱选择器。
+# A. 欢迎面板(自适应,前端)
+**Files:** Modify `src/features/dashboard/HeroPanel.vue`、`HomeView.vue`;Update `HeroPanel.spec.ts`
+- [ ] **Read** 现 `HeroPanel.vue`、`HeroPanel.spec.ts`、`HomeView.vue`、`stores/config.ts`(确认 config 暴露方式)。
+- [ ] `HeroPanel.vue`:`defineProps<{ categories: HomeCategory[]; compact?: boolean }>()`。**保留现有模板为默认态(包一层 `<template v-if="!compact">…现有 GlassCard 原样…</template>`)**;新增 `<template v-else>` 紧凑态:`GlassCard` `flex items-center justify-between gap-4 p-4`,左 LIVE + `h2 text-lg` 问候 + `text-xs text-ink-2`「部门 · 角色 · 工号」+ `text-xs text-ink-3` 时钟;右 `flex flex-col sm:flex-row gap-2.5`,3 磁贴 `rounded-xl px-4 py-2 text-center`(数字 `text-xl font-bold`,标签 `text-[11px]`)。两态共用 `stats`/`useClock`/`auth`。
+- [ ] `HomeView.vue`:引入 config store;`<HeroPanel :categories="categories" :compact="!!(config.announcementsEnabled || config.dutyLinesEnabled)" />`(B/C 落地前两标志为 undefined→false→默认态,不破坏现状)。
+- [ ] `HeroPanel.spec.ts`:分别挂载 `compact:false`/`compact:true`,各断言问候文本 + 统计值存在(避免脆弱 class 选择器)。
 - [ ] `npm run build` + `npm test` 绿。
-- [ ] **Commit(前端)**:`refactor(ui): 欢迎面板精简为紧凑单行(保留概念,降低高度)`。
+- [ ] **Commit(前端)**:`feat(ui): 欢迎面板自适应(默认保持现状;公告/值班任一启用时切紧凑)`。
 
 ---
 
@@ -59,15 +60,16 @@
 
 ## C1 后端
 **Files:** `db/migration/oracle/V10__duty_line.sql`;`com/cimportal/dutyline/**`;`OracleMigrationTest`。
-- [ ] **V10**(见 spec C SQL)。`OracleMigrationTest` 9→**10**。
+- [ ] **V10**(见 spec C SQL,含 `ALTER security_setting ADD duty_lines_enabled`)。`OracleMigrationTest` 9→**10**。
 - [ ] `DutyLine` 实体 + 仓库(`findByActiveTrueOrderBySortOrderAsc`、`findAllByOrderBySortOrderAsc`)+ `DutyLineService`(CRUD + `activeOrdered()`)。`DutyLineAdminController("/api/admin/duty-lines")` CRUD;`DutyLinePortalController @GetMapping("/api/portal/duty-lines")` → active 排序列表。DTO `DutyLineRequest(labelZh,labelEn,phone,sortOrder,active)`/`Response`。
-- [ ] 测试 `DutyLineControllerTest`:admin CRUD;门户仅 active 且按 sort。`mvn -q test` 绿(`OracleMigrationTest` 10)。
+- [ ] **开关**:`SecuritySetting` 加 `dutyLinesEnabled`;`AdminSettingView`/`SecuritySettingUpdateRequest`/`PublicConfig` 各加之;`SecuritySettingService` 读写(与 B 的 `announcementsEnabled` 并列)。
+- [ ] 测试 `DutyLineControllerTest`:admin CRUD;门户仅 active 且按 sort;`GET /api/portal/config` 含 `dutyLinesEnabled` 且 PUT 可改。`mvn -q test` 绿(`OracleMigrationTest` 10)。
 - [ ] **Commit(后端)**:`feat(duty): 值班电话后端(V10 + 管理&门户 API + 测试)`。
 
 ## C2 前端
 **Files:** `lib/api/dutyLines.ts`、`portal.ts`(`listDutyLines`);`features/dashboard/DutyLinesPanel.vue`;`features/admin/duty-lines/{DutyLinesAdminView,DutyLineFormModal}.vue`;`AdminLayout.vue`、`router/index.ts`、`HomeView.vue`(信息行右列放入)、`locales/{zh,en}.ts`。
-- [ ] `DutyLinesPanel.vue`:拉 `listDutyLines()`;空→不渲染;否则玻璃卡 + 标题(电话图标)+ 每行 电话图标 + 中/英名(pick)+ 号码。
-- [ ] 管理 `DutyLinesAdminView` + 表单(zh/en 名、号码、排序、active)+ 导航/路由 + i18n(`dashboard.dutyLines.*`、`admin.dutyLines.*`)。
+- [ ] `DutyLinesPanel.vue`:**仅当 `config.dutyLinesEnabled` 为真才请求+渲染**;`listDutyLines()` 为空→不渲染;否则玻璃卡 + 标题(电话图标)+ 每行 电话图标 + 中/英名(pick)+ 号码。
+- [ ] 管理 `DutyLinesAdminView` + 表单(zh/en 名、号码、排序、active)+ 顶部「值班电话功能 开/关」Switch(读/写 security-settings 的 `dutyLinesEnabled`)+ 导航/路由 + i18n(`dashboard.dutyLines.*`、`admin.dutyLines.*`)。
 - [ ] `HomeView.vue` 信息行右列接入 `<DutyLinesPanel/>`(公告左、值班右)。
 - [ ] `npm run build`+`npm test` 绿。
 - [ ] **Commit(前端)**:`feat(duty): 首页值班电话面板 + 管理页 + i18n`。
@@ -88,7 +90,7 @@
 ## D2 前端
 **Files:** `lib/api/portal.ts`(`toggleFavorite`)、types(`HomeLink.favorite`);`features/dashboard/SystemCard.vue`、`HomeView.vue`;`locales/{zh,en}.ts`;`SystemCard.spec.ts`。
 - [ ] `HomeLink` 类型加 `favorite`;`toggleFavorite(linkId,on)`(POST/DELETE)。
-- [ ] `SystemCard.vue`:可访问卡右上角 `Star`(lucide;favorite→`fill-current text-amber-400`,否则 `text-ink-3`),点按乐观切换 + 调 toggle,失败回滚+toast;锁定卡无星。
+- [ ] `SystemCard.vue`:**仅新增**可访问卡右上角 `Star`(lucide;favorite→`fill-current text-amber-400`,否则 `text-ink-3`),点按乐观切换 + 调 toggle,失败回滚+toast;锁定卡无星。**环境徽标(`LINK_ENVS` 彩点 + 文本)保持现状不动**;星标定位避免与环境徽标/锁图标重叠。`SystemCard.spec.ts` 增星标用例时同时断言环境徽标仍渲染。
 - [ ] `HomeView.vue`:`favorites = filtered.flatMap(c=>c.links).filter(l=>l.favorite&&l.accessible)`(按 id 去重);`SystemGrid` 之上当有收藏时渲染「我的收藏 / My links」区(复用卡片网格)。
 - [ ] i18n `dashboard.myLinks`、`dashboard.favoriteAdd/Remove`;`SystemCard.spec.ts` 星标切换 + 锁定无星。
 - [ ] `npm run build`+`npm test` 绿。
@@ -99,5 +101,5 @@
 ## 自检清单(Self-Review)
 - **覆盖:** A 欢迎(HeroPanel);B 公告 V9+类型+公告+开关+内联类型样式+面板+两管理页+测试;C 值班 V10+面板+管理页+测试;D 收藏 V11+favorite 标记+端点+星标+我的收藏+测试。✔
 - **占位符:** 迁移 SQL 在 spec;后端关键类/方法已述;前端含组件职责、调色板 map、localStorage 键、聚合逻辑;「按现状」处先 Read。无 TBD。
-- **一致性:** 调色板键集合(后端校验 ↔ `announcementColor.ts` ↔ 类型种子);`AnnouncementResponse` 内联 type 字段(后端 ↔ 前端类型 ↔ 面板渲染);`announcementsEnabled`(security_setting ↔ PublicConfig ↔ config store ↔ 面板 v-if ↔ 管理开关);`HomeLink.favorite`(DTO ↔ types ↔ SystemCard/HomeView);`/api/portal/favorites/{linkId}`(后端 ↔ toggleFavorite)。
+- **一致性:** 调色板键集合(后端校验 ↔ `announcementColor.ts` ↔ 类型种子);`AnnouncementResponse` 内联 type 字段(后端 ↔ 前端类型 ↔ 面板渲染);`announcementsEnabled` 与 `dutyLinesEnabled`(security_setting ↔ PublicConfig ↔ config store ↔ 各面板 v-if ↔ 各管理开关 ↔ HeroPanel `compact = 二者任一`);环境徽标(`SystemCard` 的 `LINK_ENVS`)在 D 中保持不变;`HomeLink.favorite`(DTO ↔ types ↔ SystemCard/HomeView);`/api/portal/favorites/{linkId}`(后端 ↔ toggleFavorite)。
 - **硬约束:** `mvn test` 绿;`OracleMigrationTest` 9→10→11;收藏锁定 403;i18n 对齐;config/home 向后兼容(仅追加字段)。
