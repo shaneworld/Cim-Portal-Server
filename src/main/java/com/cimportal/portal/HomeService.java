@@ -4,6 +4,7 @@ import com.cimportal.auth.CurrentUser;
 import com.cimportal.enumvalue.EnumCategory;
 import com.cimportal.enumvalue.EnumValue;
 import com.cimportal.enumvalue.EnumValueRepository;
+import com.cimportal.group.PermissionGroupMemberRepository;
 import com.cimportal.link.Link;
 import com.cimportal.link.LinkAccessGrant;
 import com.cimportal.link.LinkAccessGrantRepository;
@@ -22,15 +23,24 @@ public class HomeService {
     private final LinkRepository links;
     private final LinkAccessGrantRepository grants;
     private final EnumValueRepository enums;
+    private final PermissionGroupMemberRepository memberRepo;
 
-    public HomeService(LinkRepository links, LinkAccessGrantRepository grants, EnumValueRepository enums) {
-        this.links = links; this.grants = grants; this.enums = enums;
+    public HomeService(LinkRepository links, LinkAccessGrantRepository grants,
+                       EnumValueRepository enums, PermissionGroupMemberRepository memberRepo) {
+        this.links = links;
+        this.grants = grants;
+        this.enums = enums;
+        this.memberRepo = memberRepo;
     }
 
     @Transactional(readOnly = true)
     public HomeResponse resolveFor(CurrentUser user) {
         List<Link> all = links.findAllByOrderBySortOrderAscIdAsc();
         if (all.isEmpty()) return new HomeResponse(List.of());
+
+        // Resolve the current user's active group membership codes (union with dept/role grants)
+        Set<String> groupCodes = new HashSet<>(
+            memberRepo.findActiveGroupCodesByEmployeeId(user.employeeId()));
 
         Map<Long, List<LinkAccessGrant>> grantsByLink = grants
             .findByLinkIdIn(all.stream().map(Link::getId).toList())
@@ -45,7 +55,7 @@ public class HomeService {
 
         for (Link l : all) {
             var g = grantsByLink.getOrDefault(l.getId(), List.of());
-            boolean accessible = PermissionResolver.isVisible(user.departmentCode(), user.roleCode(), g);
+            boolean accessible = PermissionResolver.isVisible(user.departmentCode(), user.roleCode(), groupCodes, g);
             byCategory.computeIfAbsent(l.getCategoryCode(), k -> new ArrayList<>())
                 .add(new HomeLink(l.getId(), l.getNameZh(), l.getNameEn(),
                     accessible ? l.getUrl() : null, l.getIcon(), l.getStatusCode(),

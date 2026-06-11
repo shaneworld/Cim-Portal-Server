@@ -3,6 +3,7 @@ package com.cimportal.link;
 import com.cimportal.common.error.ApiException;
 import com.cimportal.enumvalue.EnumCategory;
 import com.cimportal.enumvalue.EnumValueRepository;
+import com.cimportal.group.PermissionGroupRepository;
 import com.cimportal.link.dto.GrantRequest;
 import com.cimportal.link.dto.LinkRequest;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,11 @@ public class LinkService {
     private final LinkRepository links;
     private final LinkAccessGrantRepository grants;
     private final EnumValueRepository enums;
+    private final PermissionGroupRepository groupRepo;
 
-    public LinkService(LinkRepository links, LinkAccessGrantRepository grants, EnumValueRepository enums) {
-        this.links = links; this.grants = grants; this.enums = enums;
+    public LinkService(LinkRepository links, LinkAccessGrantRepository grants,
+                       EnumValueRepository enums, PermissionGroupRepository groupRepo) {
+        this.links = links; this.grants = grants; this.enums = enums; this.groupRepo = groupRepo;
     }
 
     @Transactional(readOnly = true)
@@ -105,9 +108,13 @@ public class LinkService {
     }
 
     private void requireGrantCode(GrantRequest g) {
-        EnumCategory cat = g.grantType() == GrantType.DEPARTMENT
-            ? EnumCategory.DEPARTMENT : EnumCategory.ROLE;
-        if (enums.findByCategoryAndCode(cat, g.grantCode()).isEmpty())
-            throw ApiException.badRequest(cat + " 不存在枚举值: " + g.grantCode());
+        switch (g.grantType()) {
+            case DEPARTMENT -> requireEnum(EnumCategory.DEPARTMENT, g.grantCode());
+            case ROLE       -> requireEnum(EnumCategory.ROLE, g.grantCode());
+            case GROUP      -> {
+                if (!groupRepo.existsByCodeAndActiveTrue(g.grantCode()))
+                    throw ApiException.badRequest("权限组不存在或已停用: " + g.grantCode());
+            }
+        }
     }
 }
