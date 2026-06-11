@@ -28,6 +28,9 @@ public class SecuritySetting {
     @Column(name = "internal_password_hash", length = 100)
     private String internalPasswordHash;
 
+    @Column(name = "announcements_enabled", nullable = false)
+    private boolean announcementsEnabled = true;
+
     @Column(name = "updated_at")
     private Instant updatedAt;
 
@@ -40,6 +43,7 @@ public class SecuritySetting {
     public String getSsoScopes() { return ssoScopes; }
     public String getSsoUsernameClaim() { return ssoUsernameClaim; }
     public String getInternalPasswordHash() { return internalPasswordHash; }
+    public boolean isAnnouncementsEnabled() { return announcementsEnabled; }
     public Instant getUpdatedAt() { return updatedAt; }
 
     public void setSsoEnabled(boolean ssoEnabled) { this.ssoEnabled = ssoEnabled; }
@@ -48,5 +52,6 @@ public class SecuritySetting {
     public void setSsoScopes(String ssoScopes) { this.ssoScopes = ssoScopes; }
     public void setSsoUsernameClaim(String ssoUsernameClaim) { this.ssoUsernameClaim = ssoUsernameClaim; }
     public void setInternalPasswordHash(String internalPasswordHash) { this.internalPasswordHash = internalPasswordHash; }
+    public void setAnnouncementsEnabled(boolean announcementsEnabled) { this.announcementsEnabled = announcementsEnabled; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

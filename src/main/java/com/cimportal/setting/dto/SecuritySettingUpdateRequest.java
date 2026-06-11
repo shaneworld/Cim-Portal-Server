@@ -8,7 +8,8 @@ public record SecuritySettingUpdateRequest(
     String clientId,
     String scopes,
     String usernameClaim,
-    String initialPassword
+    String initialPassword,
+    Boolean announcementsEnabled
 ) {
     @AssertTrue(message = "启用 SSO 时 issuerUri 和 clientId 不能为空")
     public boolean isSsoConfigValid() {

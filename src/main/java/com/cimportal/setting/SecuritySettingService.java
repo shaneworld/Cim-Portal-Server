@@ -45,7 +45,8 @@ public class SecuritySettingService {
             s.getSsoIssuerUri(),
             s.getSsoClientId(),
             s.getSsoScopes(),
-            s.getSsoUsernameClaim()
+            s.getSsoUsernameClaim(),
+            s.isAnnouncementsEnabled()
         );
     }
 
@@ -57,6 +58,7 @@ public class SecuritySettingService {
             s.getSsoClientId(),
             s.getSsoScopes(),
             s.getSsoUsernameClaim(),
+            s.isAnnouncementsEnabled(),
             s.getUpdatedAt()
         );
     }
@@ -74,6 +76,7 @@ public class SecuritySettingService {
         if (req.initialPassword() != null && !req.initialPassword().isBlank()) {
             s.setInternalPasswordHash(encoder.encode(req.initialPassword()));
         }
+        if (req.announcementsEnabled() != null) s.setAnnouncementsEnabled(req.announcementsEnabled());
         s.setUpdatedAt(Instant.now());
         SecuritySetting saved = repo.save(s);
 

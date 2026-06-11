@@ -8,5 +8,6 @@ public record AdminSettingView(
     String clientId,
     String scopes,
     String usernameClaim,
+    boolean announcementsEnabled,
     Instant updatedAt
 ) { }

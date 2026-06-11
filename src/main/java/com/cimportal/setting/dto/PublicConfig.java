@@ -5,5 +5,6 @@ public record PublicConfig(
     String authority,
     String clientId,
     String scopes,
-    String usernameClaim
+    String usernameClaim,
+    boolean announcementsEnabled
 ) { }
