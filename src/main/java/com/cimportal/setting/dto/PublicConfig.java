@@ -6,5 +6,6 @@ public record PublicConfig(
     String clientId,
     String scopes,
     String usernameClaim,
-    boolean infoPanelEnabled
+    boolean infoPanelEnabled,
+    boolean heroEnabled
 ) { }

@@ -9,7 +9,8 @@ public record SecuritySettingUpdateRequest(
     String scopes,
     String usernameClaim,
     String initialPassword,
-    Boolean infoPanelEnabled
+    Boolean infoPanelEnabled,
+    Boolean heroEnabled
 ) {
     @AssertTrue(message = "启用 SSO 时 issuerUri 和 clientId 不能为空")
     public boolean isSsoConfigValid() {

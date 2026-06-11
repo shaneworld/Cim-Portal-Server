@@ -42,6 +42,7 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
         s.setSsoScopes("openid profile");
         s.setSsoUsernameClaim("preferred_username");
         s.setInfoPanelEnabled(true);
+        s.setHeroEnabled(true);
         s.setUpdatedAt(null);
         settingRepo.save(s);
 
@@ -57,7 +58,8 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.ssoEnabled").value(false))
             .andExpect(jsonPath("$.scopes").value("openid profile"))
-            .andExpect(jsonPath("$.usernameClaim").value("preferred_username"));
+            .andExpect(jsonPath("$.usernameClaim").value("preferred_username"))
+            .andExpect(jsonPath("$.heroEnabled").value(true));
     }
 
     @Test
@@ -140,6 +142,30 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(req))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+    }
+
+    @Test
+    void adminPut_heroEnabled_togglesInPublicConfig() throws Exception {
+        // Disable heroEnabled via admin PUT
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"heroEnabled\":false}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.heroEnabled").value(false));
+
+        // Public config should also reflect the change
+        mvc.perform(get("/api/portal/config"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.heroEnabled").value(false));
+
+        // Re-enable heroEnabled via admin PUT
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"heroEnabled\":true}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.heroEnabled").value(true));
     }
 
     @Test

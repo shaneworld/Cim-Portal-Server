@@ -31,6 +31,9 @@ public class SecuritySetting {
     @Column(name = "info_panel_enabled", nullable = false)
     private boolean infoPanelEnabled = true;
 
+    @Column(name = "hero_enabled", nullable = false)
+    private boolean heroEnabled = true;
+
     @Column(name = "updated_at")
     private Instant updatedAt;
 
@@ -44,6 +47,7 @@ public class SecuritySetting {
     public String getSsoUsernameClaim() { return ssoUsernameClaim; }
     public String getInternalPasswordHash() { return internalPasswordHash; }
     public boolean isInfoPanelEnabled() { return infoPanelEnabled; }
+    public boolean isHeroEnabled() { return heroEnabled; }
     public Instant getUpdatedAt() { return updatedAt; }
 
     public void setSsoEnabled(boolean ssoEnabled) { this.ssoEnabled = ssoEnabled; }
@@ -53,5 +57,6 @@ public class SecuritySetting {
     public void setSsoUsernameClaim(String ssoUsernameClaim) { this.ssoUsernameClaim = ssoUsernameClaim; }
     public void setInternalPasswordHash(String internalPasswordHash) { this.internalPasswordHash = internalPasswordHash; }
     public void setInfoPanelEnabled(boolean infoPanelEnabled) { this.infoPanelEnabled = infoPanelEnabled; }
+    public void setHeroEnabled(boolean heroEnabled) { this.heroEnabled = heroEnabled; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

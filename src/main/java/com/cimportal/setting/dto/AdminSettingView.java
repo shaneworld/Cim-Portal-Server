@@ -9,5 +9,6 @@ public record AdminSettingView(
     String scopes,
     String usernameClaim,
     boolean infoPanelEnabled,
+    boolean heroEnabled,
     Instant updatedAt
 ) { }
