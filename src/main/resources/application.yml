@@ -1,6 +1,10 @@
 spring:
   application:
     name: cim-portal
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
   jpa:
     open-in-view: false
     hibernate:

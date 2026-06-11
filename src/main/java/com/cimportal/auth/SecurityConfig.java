@@ -3,6 +3,7 @@ package com.cimportal.auth;
 import com.cimportal.common.AppConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -41,6 +42,7 @@ public class SecurityConfig {
                                  "/v3/api-docs/**", AppConstants.Paths.DEV_TOKEN,
                                  AppConstants.Paths.PORTAL_CONFIG,
                                  AppConstants.Auth.LOGIN_PATH).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/icons/**").permitAll()
                 .requestMatchers(AppConstants.Paths.ADMIN_API).hasRole(AppConstants.Roles.PORTAL_ADMIN)
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt
