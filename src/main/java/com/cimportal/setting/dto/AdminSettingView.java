@@ -9,5 +9,6 @@ public record AdminSettingView(
     String scopes,
     String usernameClaim,
     boolean announcementsEnabled,
+    boolean dutyLinesEnabled,
     Instant updatedAt
 ) { }

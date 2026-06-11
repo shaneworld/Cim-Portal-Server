@@ -31,6 +31,9 @@ public class SecuritySetting {
     @Column(name = "announcements_enabled", nullable = false)
     private boolean announcementsEnabled = true;
 
+    @Column(name = "duty_lines_enabled", nullable = false)
+    private boolean dutyLinesEnabled = true;
+
     @Column(name = "updated_at")
     private Instant updatedAt;
 
@@ -44,6 +47,7 @@ public class SecuritySetting {
     public String getSsoUsernameClaim() { return ssoUsernameClaim; }
     public String getInternalPasswordHash() { return internalPasswordHash; }
     public boolean isAnnouncementsEnabled() { return announcementsEnabled; }
+    public boolean isDutyLinesEnabled() { return dutyLinesEnabled; }
     public Instant getUpdatedAt() { return updatedAt; }
 
     public void setSsoEnabled(boolean ssoEnabled) { this.ssoEnabled = ssoEnabled; }
@@ -53,5 +57,6 @@ public class SecuritySetting {
     public void setSsoUsernameClaim(String ssoUsernameClaim) { this.ssoUsernameClaim = ssoUsernameClaim; }
     public void setInternalPasswordHash(String internalPasswordHash) { this.internalPasswordHash = internalPasswordHash; }
     public void setAnnouncementsEnabled(boolean announcementsEnabled) { this.announcementsEnabled = announcementsEnabled; }
+    public void setDutyLinesEnabled(boolean dutyLinesEnabled) { this.dutyLinesEnabled = dutyLinesEnabled; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

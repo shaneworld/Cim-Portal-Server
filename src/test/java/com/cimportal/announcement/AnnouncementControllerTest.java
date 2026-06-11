@@ -44,9 +44,10 @@ class AnnouncementControllerTest extends OracleIntegrationTest {
 
         admin = "Bearer " + jwts.bearerFor("ADMIN1");
 
-        // Reset announcements_enabled to true
+        // Reset announcements_enabled and duty_lines_enabled to true
         SecuritySetting s = settingRepo.findById(1L).orElseThrow();
         s.setAnnouncementsEnabled(true);
+        s.setDutyLinesEnabled(true);
         settingRepo.save(s);
         settingService.invalidateCache();
     }
