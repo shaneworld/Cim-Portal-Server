@@ -4,6 +4,7 @@ import com.cimportal.auth.CurrentUser;
 import com.cimportal.enumvalue.EnumCategory;
 import com.cimportal.enumvalue.EnumValue;
 import com.cimportal.enumvalue.EnumValueRepository;
+import com.cimportal.favorite.FavoriteRepository;
 import com.cimportal.group.PermissionGroupMemberRepository;
 import com.cimportal.link.Link;
 import com.cimportal.link.LinkAccessGrant;
@@ -24,19 +25,25 @@ public class HomeService {
     private final LinkAccessGrantRepository grants;
     private final EnumValueRepository enums;
     private final PermissionGroupMemberRepository memberRepo;
+    private final FavoriteRepository favoriteRepo;
 
     public HomeService(LinkRepository links, LinkAccessGrantRepository grants,
-                       EnumValueRepository enums, PermissionGroupMemberRepository memberRepo) {
+                       EnumValueRepository enums, PermissionGroupMemberRepository memberRepo,
+                       FavoriteRepository favoriteRepo) {
         this.links = links;
         this.grants = grants;
         this.enums = enums;
         this.memberRepo = memberRepo;
+        this.favoriteRepo = favoriteRepo;
     }
 
     @Transactional(readOnly = true)
     public HomeResponse resolveFor(CurrentUser user) {
         List<Link> all = links.findAllByOrderBySortOrderAscIdAsc();
         if (all.isEmpty()) return new HomeResponse(List.of());
+
+        // Load the user's favorites up-front (one query)
+        Set<Long> favIds = new HashSet<>(favoriteRepo.findLinkIdsByEmployeeId(user.employeeId()));
 
         // Resolve the current user's active group membership codes (union with dept/role grants)
         Set<String> groupCodes = new HashSet<>(
@@ -61,7 +68,7 @@ public class HomeService {
                     accessible ? l.getUrl() : null, l.getIcon(), l.getStatusCode(),
                     l.isOpenInNewTab(), l.getEnvironment(),
                     l.isLaunchApp(), accessible ? l.getDownloadUrl() : null,
-                    accessible));
+                    accessible, favIds.contains(l.getId())));
         }
 
         List<HomeCategory> categories = new ArrayList<>();
