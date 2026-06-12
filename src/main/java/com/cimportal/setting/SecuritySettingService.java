@@ -61,6 +61,8 @@ public class SecuritySettingService {
             s.getSsoUsernameClaim(),
             s.isInfoPanelEnabled(),
             s.isHeroEnabled(),
+            s.getDutyApiBaseUrl(),
+            s.getDutyApiKey() != null && !s.getDutyApiKey().isBlank(),
             s.getUpdatedAt()
         );
     }
@@ -80,6 +82,9 @@ public class SecuritySettingService {
         }
         if (req.infoPanelEnabled() != null) s.setInfoPanelEnabled(req.infoPanelEnabled());
         if (req.heroEnabled() != null) s.setHeroEnabled(req.heroEnabled());
+        if (req.dutyApiBaseUrl() != null) s.setDutyApiBaseUrl(req.dutyApiBaseUrl().isBlank() ? null : req.dutyApiBaseUrl());
+        // null = keep existing key; blank = clear
+        if (req.dutyApiKey() != null) s.setDutyApiKey(req.dutyApiKey().isBlank() ? null : req.dutyApiKey());
         s.setUpdatedAt(Instant.now());
         SecuritySetting saved = repo.save(s);
 

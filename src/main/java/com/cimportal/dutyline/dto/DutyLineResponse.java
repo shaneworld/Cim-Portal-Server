@@ -6,5 +6,7 @@ public record DutyLineResponse(
     String labelEn,
     String phone,
     int sortOrder,
-    boolean active
+    boolean active,
+    String scheduleName,
+    String dutyName
 ) { }

@@ -43,6 +43,8 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
         s.setSsoUsernameClaim("preferred_username");
         s.setInfoPanelEnabled(true);
         s.setHeroEnabled(true);
+        s.setDutyApiBaseUrl(null);
+        s.setDutyApiKey(null);
         s.setUpdatedAt(null);
         settingRepo.save(s);
 
@@ -166,6 +168,62 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
                 .content("{\"heroEnabled\":true}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.heroEnabled").value(true));
+    }
+
+    // ── Duty external API config ────────────────────────────────────────────────
+
+    @Test
+    void adminPut_dutyApi_setsBaseUrlAndKey_withoutEchoingPlaintextKey() throws Exception {
+        String req = """
+            {"dutyApiBaseUrl":"https://duty.example.com","dutyApiKey":"super-secret-key"}
+            """;
+
+        String body = mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON).content(req))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.dutyApiBaseUrl").value("https://duty.example.com"))
+            .andExpect(jsonPath("$.dutyApiKeyConfigured").value(true))
+            .andReturn().getResponse().getContentAsString();
+        assertThat(body).doesNotContain("super-secret-key").doesNotContain("dutyApiKey\"");
+    }
+
+    @Test
+    void adminPut_dutyApi_omittingKey_keepsExistingKey() throws Exception {
+        // First set a key
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"dutyApiBaseUrl\":\"https://duty.example.com\",\"dutyApiKey\":\"k1\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.dutyApiKeyConfigured").value(true));
+
+        // PUT with only baseUrl (no dutyApiKey) → existing key kept, still configured
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"dutyApiBaseUrl\":\"https://duty2.example.com\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.dutyApiBaseUrl").value("https://duty2.example.com"))
+            .andExpect(jsonPath("$.dutyApiKeyConfigured").value(true));
+    }
+
+    @Test
+    void publicConfig_doesNotExposeDutyApiFields() throws Exception {
+        // Configure duty API first
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"dutyApiBaseUrl\":\"https://duty.example.com\",\"dutyApiKey\":\"k1\"}"))
+            .andExpect(status().isOk());
+
+        String body = mvc.perform(get("/api/portal/config"))
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
+        assertThat(body)
+            .doesNotContain("dutyApi")
+            .doesNotContain("duty.example.com")
+            .doesNotContain("k1");
     }
 
     @Test

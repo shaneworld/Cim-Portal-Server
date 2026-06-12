@@ -34,6 +34,12 @@ public class SecuritySetting {
     @Column(name = "hero_enabled", nullable = false)
     private boolean heroEnabled = true;
 
+    @Column(name = "duty_api_base_url", length = 512)
+    private String dutyApiBaseUrl;
+
+    @Column(name = "duty_api_key", length = 512)
+    private String dutyApiKey;
+
     @Column(name = "updated_at")
     private Instant updatedAt;
 
@@ -48,6 +54,8 @@ public class SecuritySetting {
     public String getInternalPasswordHash() { return internalPasswordHash; }
     public boolean isInfoPanelEnabled() { return infoPanelEnabled; }
     public boolean isHeroEnabled() { return heroEnabled; }
+    public String getDutyApiBaseUrl() { return dutyApiBaseUrl; }
+    public String getDutyApiKey() { return dutyApiKey; }
     public Instant getUpdatedAt() { return updatedAt; }
 
     public void setSsoEnabled(boolean ssoEnabled) { this.ssoEnabled = ssoEnabled; }
@@ -58,5 +66,7 @@ public class SecuritySetting {
     public void setInternalPasswordHash(String internalPasswordHash) { this.internalPasswordHash = internalPasswordHash; }
     public void setInfoPanelEnabled(boolean infoPanelEnabled) { this.infoPanelEnabled = infoPanelEnabled; }
     public void setHeroEnabled(boolean heroEnabled) { this.heroEnabled = heroEnabled; }
+    public void setDutyApiBaseUrl(String dutyApiBaseUrl) { this.dutyApiBaseUrl = dutyApiBaseUrl; }
+    public void setDutyApiKey(String dutyApiKey) { this.dutyApiKey = dutyApiKey; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

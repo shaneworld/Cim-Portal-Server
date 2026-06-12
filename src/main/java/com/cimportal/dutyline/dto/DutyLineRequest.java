@@ -6,6 +6,7 @@ public record DutyLineRequest(
     @NotBlank String labelZh,
     @NotBlank String labelEn,
     @NotBlank String phone,
+    String scheduleName,
     Integer sortOrder,
     Boolean active
 ) {

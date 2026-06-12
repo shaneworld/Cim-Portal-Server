@@ -25,6 +25,9 @@ public class DutyLine {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Column(name = "schedule_name")
+    private String scheduleName;
+
     protected DutyLine() { }
 
     public DutyLine(String labelZh, String labelEn, String phone, int sortOrder, boolean active) {
@@ -41,10 +44,12 @@ public class DutyLine {
     public String getPhone() { return phone; }
     public int getSortOrder() { return sortOrder; }
     public boolean isActive() { return active; }
+    public String getScheduleName() { return scheduleName; }
 
     public void setLabelZh(String labelZh) { this.labelZh = labelZh; }
     public void setLabelEn(String labelEn) { this.labelEn = labelEn; }
     public void setPhone(String phone) { this.phone = phone; }
     public void setSortOrder(int sortOrder) { this.sortOrder = sortOrder; }
     public void setActive(boolean active) { this.active = active; }
+    public void setScheduleName(String scheduleName) { this.scheduleName = scheduleName; }
 }
