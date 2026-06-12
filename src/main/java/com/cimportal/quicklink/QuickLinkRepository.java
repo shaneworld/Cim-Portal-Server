@@ -1,0 +1,12 @@
+package com.cimportal.quicklink;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface QuickLinkRepository extends JpaRepository<QuickLink, Long> {
+
+    List<QuickLink> findByActiveTrueOrderBySortOrderAsc();
+
+    List<QuickLink> findAllByOrderBySortOrderAsc();
+}
