@@ -2,10 +2,12 @@ package com.cimportal.announcement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("!test")
 public class AnnouncementScheduler {
     private static final Logger log = LoggerFactory.getLogger(AnnouncementScheduler.class);
     private final AnnouncementService service;
