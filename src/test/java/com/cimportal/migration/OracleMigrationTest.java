@@ -24,6 +24,6 @@ class OracleMigrationTest {
             .load();
         MigrateResult result = flyway.migrate();
         assertThat(result.success).isTrue();
-        assertThat(result.migrationsExecuted).isEqualTo(16);
+        assertThat(result.migrationsExecuted).isEqualTo(17);
     }
 }

@@ -9,6 +9,7 @@ import com.cimportal.enumvalue.EnumValueRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
@@ -17,10 +18,12 @@ public class AnnouncementService {
 
     private final AnnouncementRepository repo;
     private final EnumValueRepository enumRepo;
+    private final Clock clock;
 
-    public AnnouncementService(AnnouncementRepository repo, EnumValueRepository enumRepo) {
+    public AnnouncementService(AnnouncementRepository repo, EnumValueRepository enumRepo, Clock clock) {
         this.repo = repo;
         this.enumRepo = enumRepo;
+        this.clock = clock;
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +64,25 @@ public class AnnouncementService {
         a.setStartsAt(req.startsAt());
         a.setEndsAt(req.endsAt());
         a.setActive(req.activeOrDefault());
+        if (a.isActive()) a.setClosedAt(null);
         return toResponse(a);
+    }
+
+    /** Disables announcements whose end time has passed; records the close timestamp. */
+    @Transactional
+    public int closeExpired() {
+        Instant now = clock.instant();
+        // Compare in Java (consistent across DB/timezone) rather than via a DB-side
+        // timestamp predicate, mirroring effective(Instant).
+        List<Announcement> expired = repo.findByActiveTrueAndEndsAtIsNotNull().stream()
+            .filter(a -> a.getEndsAt().isBefore(now))
+            .toList();
+        for (Announcement a : expired) {
+            a.setActive(false);
+            a.setClosedAt(now);
+        }
+        repo.saveAll(expired);
+        return expired.size();
     }
 
     @Transactional
@@ -96,7 +117,8 @@ public class AnnouncementService {
         return new AnnouncementResponse(
             a.getId(), a.getTitleZh(), a.getTitleEn(), a.getBodyZh(), a.getBodyEn(),
             a.getTypeCode(), labelZh, labelEn, color, icon,
-            a.isPinned(), a.getStartsAt(), a.getEndsAt(), a.isActive(), a.getCreatedAt()
+            a.isPinned(), a.getStartsAt(), a.getEndsAt(), a.isActive(), a.getCreatedAt(),
+            a.getClosedAt()
         );
     }
 }

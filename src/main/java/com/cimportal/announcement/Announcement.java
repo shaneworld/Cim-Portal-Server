@@ -46,6 +46,9 @@ public class Announcement {
     @Column(name = "created_at", updatable = false, nullable = false)
     private Instant createdAt;
 
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
     protected Announcement() { }
 
     public Announcement(String titleZh, String titleEn, String bodyZh, String bodyEn,
@@ -73,6 +76,7 @@ public class Announcement {
     public Instant getEndsAt() { return endsAt; }
     public boolean isActive() { return active; }
     public Instant getCreatedAt() { return createdAt; }
+    public Instant getClosedAt() { return closedAt; }
 
     public void setTitleZh(String titleZh) { this.titleZh = titleZh; }
     public void setTitleEn(String titleEn) { this.titleEn = titleEn; }
@@ -83,4 +87,5 @@ public class Announcement {
     public void setStartsAt(Instant startsAt) { this.startsAt = startsAt; }
     public void setEndsAt(Instant endsAt) { this.endsAt = endsAt; }
     public void setActive(boolean active) { this.active = active; }
+    public void setClosedAt(Instant closedAt) { this.closedAt = closedAt; }
 }

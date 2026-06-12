@@ -17,5 +17,6 @@ public record AnnouncementResponse(
     Instant startsAt,
     Instant endsAt,
     boolean active,
-    Instant createdAt
+    Instant createdAt,
+    Instant closedAt
 ) { }
