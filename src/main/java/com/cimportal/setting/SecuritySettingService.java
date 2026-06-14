@@ -2,6 +2,8 @@ package com.cimportal.setting;
 
 import com.cimportal.lark.LarkTokenCache;
 import com.cimportal.setting.dto.AdminSettingView;
+import com.cimportal.setting.dto.DutySettingsUpdateRequest;
+import com.cimportal.setting.dto.DutySettingsView;
 import com.cimportal.setting.dto.LarkSettingsUpdateRequest;
 import com.cimportal.setting.dto.LarkSettingsView;
 import com.cimportal.setting.dto.PublicConfig;
@@ -78,6 +80,32 @@ public class SecuritySettingService {
             s.getDutyApiKey() != null && !s.getDutyApiKey().isBlank(),
             s.getUpdatedAt()
         );
+    }
+
+    public DutySettingsView dutySettingsView() {
+        SecuritySetting s = get();
+        return new DutySettingsView(
+            s.getDutyApiBaseUrl(),
+            nb(s.getDutyApiKey())
+        );
+    }
+
+    @Transactional
+    public DutySettingsView updateDutySettings(DutySettingsUpdateRequest req) {
+        SecuritySetting s = repo.findById(SINGLETON_ID)
+            .orElseThrow(() -> new IllegalStateException("security_setting row missing"));
+
+        if (req.dutyApiBaseUrl() != null) s.setDutyApiBaseUrl(req.dutyApiBaseUrl().isBlank() ? null : req.dutyApiBaseUrl());
+        // null = keep existing key; blank = clear
+        if (req.dutyApiKey() != null) s.setDutyApiKey(req.dutyApiKey().isBlank() ? null : req.dutyApiKey());
+        s.setUpdatedAt(Instant.now());
+        SecuritySetting saved = repo.save(s);
+
+        synchronized (this) {
+            cached = saved;
+        }
+
+        return dutySettingsView();
     }
 
     public LarkSettingsView larkSettingsView() {
