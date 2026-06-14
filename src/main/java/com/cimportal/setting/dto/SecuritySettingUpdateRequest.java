@@ -12,7 +12,12 @@ public record SecuritySettingUpdateRequest(
     Boolean infoPanelEnabled,
     Boolean heroEnabled,
     String dutyApiBaseUrl,
-    String dutyApiKey
+    String dutyApiKey,
+    String larkBaseUrl,
+    String larkAppId,
+    String larkAppSecret,
+    String larkReceiverId,
+    String larkReceiverIdType
 ) {
     @AssertTrue(message = "启用 SSO 时 issuerUri 和 clientId 不能为空")
     public boolean isSsoConfigValid() {

@@ -45,6 +45,11 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
         s.setHeroEnabled(true);
         s.setDutyApiBaseUrl(null);
         s.setDutyApiKey(null);
+        s.setLarkBaseUrl(null);
+        s.setLarkAppId(null);
+        s.setLarkAppSecret(null);
+        s.setLarkReceiverId(null);
+        s.setLarkReceiverIdType(null);
         s.setUpdatedAt(null);
         settingRepo.save(s);
 
@@ -224,6 +229,82 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
             .doesNotContain("dutyApi")
             .doesNotContain("duty.example.com")
             .doesNotContain("k1");
+    }
+
+    // ── Lark integration config ─────────────────────────────────────────────────
+
+    @Test
+    void adminPut_lark_setsFields_withoutEchoingPlaintextSecret() throws Exception {
+        String req = """
+            {"larkBaseUrl":"https://open.feishu.cn","larkAppId":"cli_app123",
+             "larkAppSecret":"super-secret-lark","larkReceiverId":"ops@example.com",
+             "larkReceiverIdType":"email"}
+            """;
+
+        String body = mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON).content(req))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.larkBaseUrl").value("https://open.feishu.cn"))
+            .andExpect(jsonPath("$.larkAppId").value("cli_app123"))
+            .andExpect(jsonPath("$.larkReceiverId").value("ops@example.com"))
+            .andExpect(jsonPath("$.larkReceiverIdType").value("email"))
+            .andExpect(jsonPath("$.larkAppSecretConfigured").value(true))
+            .andReturn().getResponse().getContentAsString();
+        assertThat(body).doesNotContain("super-secret-lark").doesNotContain("larkAppSecret\"");
+    }
+
+    @Test
+    void adminPut_lark_omittingSecret_keepsExistingSecret() throws Exception {
+        // First set a secret
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"larkAppId\":\"cli_app1\",\"larkAppSecret\":\"s1\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.larkAppSecretConfigured").value(true));
+
+        // PUT with only larkAppId (no secret) → existing secret kept, still configured
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"larkAppId\":\"cli_app2\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.larkAppId").value("cli_app2"))
+            .andExpect(jsonPath("$.larkAppSecretConfigured").value(true));
+    }
+
+    @Test
+    void publicConfig_larkEnabled_reflectsFullConfig_withoutLeakingFields() throws Exception {
+        // All three required → larkEnabled=true
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"larkAppId\":\"cli_app1\",\"larkAppSecret\":\"s1\",\"larkReceiverId\":\"ops@example.com\"}"))
+            .andExpect(status().isOk());
+
+        String body = mvc.perform(get("/api/portal/config"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.larkEnabled").value(true))
+            .andReturn().getResponse().getContentAsString();
+        assertThat(body)
+            .doesNotContain("larkAppId")
+            .doesNotContain("larkAppSecret")
+            .doesNotContain("larkReceiverId")
+            .doesNotContain("cli_app1")
+            .doesNotContain("s1")
+            .doesNotContain("ops@example.com");
+
+        // Clear the receiver → larkEnabled=false
+        mvc.perform(put("/api/admin/security-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("ADMIN1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"larkReceiverId\":\"\"}"))
+            .andExpect(status().isOk());
+
+        mvc.perform(get("/api/portal/config"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.larkEnabled").value(false));
     }
 
     @Test
