@@ -10,7 +10,5 @@ public record AdminSettingView(
     String usernameClaim,
     boolean infoPanelEnabled,
     boolean heroEnabled,
-    String dutyApiBaseUrl,
-    boolean dutyApiKeyConfigured,
     Instant updatedAt
 ) { }
