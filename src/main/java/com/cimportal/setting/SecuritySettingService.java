@@ -2,6 +2,8 @@ package com.cimportal.setting;
 
 import com.cimportal.lark.LarkTokenCache;
 import com.cimportal.setting.dto.AdminSettingView;
+import com.cimportal.setting.dto.LarkSettingsUpdateRequest;
+import com.cimportal.setting.dto.LarkSettingsView;
 import com.cimportal.setting.dto.PublicConfig;
 import com.cimportal.setting.dto.SecuritySettingUpdateRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -81,6 +83,39 @@ public class SecuritySettingService {
             s.getLarkAppSecret() != null && !s.getLarkAppSecret().isBlank(),
             s.getUpdatedAt()
         );
+    }
+
+    public LarkSettingsView larkSettingsView() {
+        SecuritySetting s = get();
+        return new LarkSettingsView(
+            s.getLarkBaseUrl(),
+            s.getLarkAppId(),
+            s.getLarkReceiverId(),
+            s.getLarkReceiverIdType(),
+            nb(s.getLarkAppSecret())
+        );
+    }
+
+    @Transactional
+    public LarkSettingsView updateLarkSettings(LarkSettingsUpdateRequest req) {
+        SecuritySetting s = repo.findById(SINGLETON_ID)
+            .orElseThrow(() -> new IllegalStateException("security_setting row missing"));
+
+        if (req.larkBaseUrl() != null) s.setLarkBaseUrl(req.larkBaseUrl().isBlank() ? null : req.larkBaseUrl());
+        if (req.larkAppId() != null) s.setLarkAppId(req.larkAppId().isBlank() ? null : req.larkAppId());
+        if (req.larkReceiverId() != null) s.setLarkReceiverId(req.larkReceiverId().isBlank() ? null : req.larkReceiverId());
+        if (req.larkReceiverIdType() != null) s.setLarkReceiverIdType(req.larkReceiverIdType().isBlank() ? null : req.larkReceiverIdType());
+        // null = keep existing secret; blank = clear
+        if (req.larkAppSecret() != null) s.setLarkAppSecret(req.larkAppSecret().isBlank() ? null : req.larkAppSecret());
+        s.setUpdatedAt(Instant.now());
+        SecuritySetting saved = repo.save(s);
+
+        synchronized (this) {
+            cached = saved;
+        }
+        larkTokenCache.clear();
+
+        return larkSettingsView();
     }
 
     @Transactional
