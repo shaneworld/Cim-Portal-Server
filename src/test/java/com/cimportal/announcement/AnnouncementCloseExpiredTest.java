@@ -67,6 +67,25 @@ class AnnouncementCloseExpiredTest extends OracleIntegrationTest {
     }
 
     @Test
+    void publishCheck_countsActiveFutureStart() {
+        Instant now = Instant.now();
+        // active=true, startsAt future, endsAt null  → counts
+        repo.save(new Announcement(
+            "标题", "Title", "正文", "Body", "INFO", false, now.plusSeconds(3600), null, true));
+        // active=true, startsAt past, endsAt null     → not counted (already started)
+        repo.save(new Announcement(
+            "标题", "Title", "正文", "Body", "INFO", false, now.minusSeconds(3600), null, true));
+        // active=true, startsAt null, endsAt null      → not counted (no start)
+        repo.save(new Announcement(
+            "标题", "Title", "正文", "Body", "INFO", false, null, null, true));
+        // active=false, startsAt future, endsAt null   → not counted (inactive)
+        repo.save(new Announcement(
+            "标题", "Title", "正文", "Body", "INFO", false, now.plusSeconds(3600), null, false));
+
+        assertThat(service.publishCheck()).isEqualTo(1);
+    }
+
+    @Test
     void update_reEnable_clearsClosedAt() {
         Announcement a = new Announcement(
             "标题", "Title", "正文", "Body", "INFO", false, null,

@@ -9,4 +9,6 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     List<Announcement> findAllByOrderByPinnedDescCreatedAtDesc();
 
     List<Announcement> findByActiveTrueAndEndsAtIsNotNull();
+
+    List<Announcement> findByActiveTrueAndStartsAtIsNotNull();
 }

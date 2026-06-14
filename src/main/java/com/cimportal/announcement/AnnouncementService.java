@@ -85,6 +85,15 @@ public class AnnouncementService {
         return expired.size();
     }
 
+    /** Read-only count of active announcements scheduled to start in the future (not yet visible). */
+    @Transactional(readOnly = true)
+    public int publishCheck() {
+        Instant now = clock.instant();
+        return (int) repo.findByActiveTrueAndStartsAtIsNotNull().stream()
+            .filter(a -> a.getStartsAt().isAfter(now))
+            .count();
+    }
+
     @Transactional
     public void delete(Long id) {
         Announcement a = repo.findById(id)

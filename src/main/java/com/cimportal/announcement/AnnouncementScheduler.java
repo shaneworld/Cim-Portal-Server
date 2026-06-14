@@ -17,5 +17,7 @@ public class AnnouncementScheduler {
     public void closeExpired() {
         int n = service.closeExpired();
         if (n > 0) log.info("Auto-closed {} expired announcement(s)", n);
+        int upcoming = service.publishCheck();
+        if (upcoming > 0) log.info("{} scheduled announcement(s) upcoming", upcoming);
     }
 }
