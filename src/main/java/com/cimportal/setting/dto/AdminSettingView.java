@@ -12,10 +12,5 @@ public record AdminSettingView(
     boolean heroEnabled,
     String dutyApiBaseUrl,
     boolean dutyApiKeyConfigured,
-    String larkBaseUrl,
-    String larkAppId,
-    String larkReceiverId,
-    String larkReceiverIdType,
-    boolean larkAppSecretConfigured,
     Instant updatedAt
 ) { }

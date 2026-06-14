@@ -76,11 +76,6 @@ public class SecuritySettingService {
             s.isHeroEnabled(),
             s.getDutyApiBaseUrl(),
             s.getDutyApiKey() != null && !s.getDutyApiKey().isBlank(),
-            s.getLarkBaseUrl(),
-            s.getLarkAppId(),
-            s.getLarkReceiverId(),
-            s.getLarkReceiverIdType(),
-            s.getLarkAppSecret() != null && !s.getLarkAppSecret().isBlank(),
             s.getUpdatedAt()
         );
     }
@@ -136,12 +131,6 @@ public class SecuritySettingService {
         if (req.dutyApiBaseUrl() != null) s.setDutyApiBaseUrl(req.dutyApiBaseUrl().isBlank() ? null : req.dutyApiBaseUrl());
         // null = keep existing key; blank = clear
         if (req.dutyApiKey() != null) s.setDutyApiKey(req.dutyApiKey().isBlank() ? null : req.dutyApiKey());
-        if (req.larkBaseUrl() != null) s.setLarkBaseUrl(req.larkBaseUrl().isBlank() ? null : req.larkBaseUrl());
-        if (req.larkAppId() != null) s.setLarkAppId(req.larkAppId().isBlank() ? null : req.larkAppId());
-        if (req.larkReceiverId() != null) s.setLarkReceiverId(req.larkReceiverId().isBlank() ? null : req.larkReceiverId());
-        if (req.larkReceiverIdType() != null) s.setLarkReceiverIdType(req.larkReceiverIdType().isBlank() ? null : req.larkReceiverIdType());
-        // null = keep existing secret; blank = clear
-        if (req.larkAppSecret() != null) s.setLarkAppSecret(req.larkAppSecret().isBlank() ? null : req.larkAppSecret());
         s.setUpdatedAt(Instant.now());
         SecuritySetting saved = repo.save(s);
 
@@ -149,8 +138,6 @@ public class SecuritySettingService {
         synchronized (this) {
             cached = saved;
         }
-        // drop any cached Lark token in case credentials changed
-        larkTokenCache.clear();
 
         return adminView();
     }
