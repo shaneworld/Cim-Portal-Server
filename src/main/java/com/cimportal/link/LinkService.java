@@ -3,9 +3,12 @@ package com.cimportal.link;
 import com.cimportal.common.error.ApiException;
 import com.cimportal.enumvalue.EnumCategory;
 import com.cimportal.enumvalue.EnumValueRepository;
+import com.cimportal.enumvalue.EnvBadge;
 import com.cimportal.group.PermissionGroupRepository;
 import com.cimportal.link.dto.GrantRequest;
+import com.cimportal.link.dto.GrantResponse;
 import com.cimportal.link.dto.LinkRequest;
+import com.cimportal.link.dto.LinkResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +49,7 @@ public class LinkService {
     public Link create(LinkRequest req) {
         requireEnum(EnumCategory.LINK_CATEGORY, req.categoryCode());
         requireEnum(EnumCategory.LINK_STATUS, req.statusCode());
+        requireEnvIfPresent(req.environment());
         Link l = new Link();
         apply(l, req);
         return links.save(l);
@@ -56,8 +60,15 @@ public class LinkService {
         Link l = get(id);
         requireEnum(EnumCategory.LINK_CATEGORY, req.categoryCode());
         requireEnum(EnumCategory.LINK_STATUS, req.statusCode());
+        requireEnvIfPresent(req.environment());
         apply(l, req);
         return l;
+    }
+
+    /** Builds the admin response, inlining LINK_ENV color/labels resolved from enum_value. */
+    @Transactional(readOnly = true)
+    public LinkResponse toResponse(Link l, List<GrantResponse> grants) {
+        return LinkResponse.of(l, grants, EnvBadge.resolve(enums, l.getEnvironment()));
     }
 
     @Transactional
@@ -105,6 +116,10 @@ public class LinkService {
     private void requireEnum(EnumCategory category, String code) {
         if (enums.findByCategoryAndCode(category, code).isEmpty())
             throw ApiException.badRequest(category + " 不存在枚举值: " + code);
+    }
+
+    private void requireEnvIfPresent(String env) {
+        if (env != null && !env.isBlank()) requireEnum(EnumCategory.LINK_ENV, env);
     }
 
     private void requireGrantCode(GrantRequest g) {

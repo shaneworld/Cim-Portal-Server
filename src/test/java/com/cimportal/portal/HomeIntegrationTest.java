@@ -35,6 +35,9 @@ class HomeIntegrationTest extends OracleIntegrationTest {
         users.deleteAll(); enums.deleteAll(); links.deleteAll(); grants.deleteAll();
         enums.save(new EnumValue(EnumCategory.LINK_CATEGORY, "MES", "制造执行", "MES", 1, true));
         enums.save(new EnumValue(EnumCategory.LINK_STATUS, "ACTIVE", "启用", "Active", 1, true));
+        EnumValue uat = new EnumValue(EnumCategory.LINK_ENV, "UAT", "测试环境", "UAT", 20, true);
+        uat.setColor("amber");
+        enums.save(uat);
 
         users.save(new UserInfo("OP1", "操作员", "Op", "FAB1-PROD", "OPERATOR", null, true, Instant.now()));
         users.save(new UserInfo("QA1", "质量", "QA", "QA", "QA_ENGINEER", null, true, Instant.now()));
@@ -93,7 +96,7 @@ class HomeIntegrationTest extends OracleIntegrationTest {
     @Test
     void homeLinkHasEnvironmentFieldAndNoEnvUrlFields() throws Exception {
         // Seed a UAT-environment link
-        Link uatLink = LinkTestFactory.newLink("UAT Link", "MES", LinkEnv.UAT);
+        Link uatLink = LinkTestFactory.newLink("UAT Link", "MES", "UAT");
         links.save(uatLink);
 
         mvc.perform(get("/api/portal/home").header("Authorization", "Bearer " + jwts.bearerFor("OP1")))
@@ -106,8 +109,10 @@ class HomeIntegrationTest extends OracleIntegrationTest {
             .andExpect(jsonPath("$.categories[0].links[0].urlDev").doesNotExist())
             .andExpect(jsonPath("$.categories[0].links[0].urlUat").doesNotExist())
             .andExpect(jsonPath("$.categories[0].links[0].urlRelease").doesNotExist())
-            // UAT link carries environment value
-            .andExpect(jsonPath("$.categories[0].links[2].environment").value("UAT"));
+            // UAT link carries environment value + inlined env presentation
+            .andExpect(jsonPath("$.categories[0].links[2].environment").value("UAT"))
+            .andExpect(jsonPath("$.categories[0].links[2].envColor").value("amber"))
+            .andExpect(jsonPath("$.categories[0].links[2].envLabelEn").value("UAT"));
     }
 
     @Test

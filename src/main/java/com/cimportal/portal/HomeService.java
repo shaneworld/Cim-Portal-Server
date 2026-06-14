@@ -4,6 +4,7 @@ import com.cimportal.auth.CurrentUser;
 import com.cimportal.enumvalue.EnumCategory;
 import com.cimportal.enumvalue.EnumValue;
 import com.cimportal.enumvalue.EnumValueRepository;
+import com.cimportal.enumvalue.EnvBadge;
 import com.cimportal.favorite.FavoriteRepository;
 import com.cimportal.group.PermissionGroupMemberRepository;
 import com.cimportal.link.Link;
@@ -63,10 +64,12 @@ public class HomeService {
         for (Link l : all) {
             var g = grantsByLink.getOrDefault(l.getId(), List.of());
             boolean accessible = PermissionResolver.isVisible(user.departmentCode(), user.roleCode(), groupCodes, g);
+            EnvBadge env = EnvBadge.resolve(enums, l.getEnvironment());
             byCategory.computeIfAbsent(l.getCategoryCode(), k -> new ArrayList<>())
                 .add(new HomeLink(l.getId(), l.getNameZh(), l.getNameEn(),
                     accessible ? l.getUrl() : null, l.getIcon(), l.getStatusCode(),
                     l.isOpenInNewTab(), l.getEnvironment(),
+                    env.envColor(), env.envLabelZh(), env.envLabelEn(),
                     l.isLaunchApp(), accessible ? l.getDownloadUrl() : null,
                     accessible, favIds.contains(l.getId())));
         }

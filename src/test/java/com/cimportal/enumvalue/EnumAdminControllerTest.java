@@ -56,6 +56,26 @@ class EnumAdminControllerTest extends OracleIntegrationTest {
     }
 
     @Test
+    void linkEnvAcceptsPaletteColor_rejectsUnknownColor() throws Exception {
+        String admin = "Bearer " + jwts.bearerFor("ADMIN1");
+
+        // color in the palette is accepted
+        String ok = "{\"code\":\"RELEASE\",\"labelZh\":\"生产环境\",\"labelEn\":\"RELEASE\"," +
+            "\"sortOrder\":30,\"color\":\"green\"}";
+        mvc.perform(post("/api/admin/enums/LINK_ENV").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(ok))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.color").value("green"));
+
+        // color not in the palette is rejected
+        String bad = "{\"code\":\"STAGING\",\"labelZh\":\"预发布\",\"labelEn\":\"STAGING\"," +
+            "\"sortOrder\":40,\"color\":\"teal\"}";
+        mvc.perform(post("/api/admin/enums/LINK_ENV").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(bad))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void nonAdminForbidden_anonymousUnauthorized() throws Exception {
         String op = "Bearer " + jwts.bearerFor("OP1");
         String body = "{\"code\":\"X\",\"labelZh\":\"x\",\"labelEn\":\"x\",\"sortOrder\":0}";

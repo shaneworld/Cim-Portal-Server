@@ -17,8 +17,7 @@ public class Link {
     @Column(name = "status_code", nullable = false, length = 64) private String statusCode;
     @Column(name = "sort_order", nullable = false) private int sortOrder;
     @Column(name = "open_in_new_tab", nullable = false) private boolean openInNewTab = true;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "environment", length = 16) private LinkEnv environment;
+    @Column(name = "environment", length = 16) private String environment;
     @Column(name = "launch_app", nullable = false) private boolean launchApp = false;
     @Column(name = "download_url", length = 1024) private String downloadUrl;
     @CreationTimestamp @Column(name = "created_at", updatable = false) private Instant createdAt;
@@ -42,7 +41,7 @@ public class Link {
     public String getStatusCode() { return statusCode; }
     public int getSortOrder() { return sortOrder; }
     public boolean isOpenInNewTab() { return openInNewTab; }
-    public LinkEnv getEnvironment() { return environment; }
+    public String getEnvironment() { return environment; }
     public boolean isLaunchApp() { return launchApp; }
     public String getDownloadUrl() { return downloadUrl; }
     public Instant getCreatedAt() { return createdAt; }
@@ -56,7 +55,7 @@ public class Link {
     public void setStatusCode(String v) { this.statusCode = v; }
     public void setSortOrder(int v) { this.sortOrder = v; }
     public void setOpenInNewTab(boolean v) { this.openInNewTab = v; }
-    public void setEnvironment(LinkEnv v) { this.environment = v; }
+    public void setEnvironment(String v) { this.environment = v; }
     public void setLaunchApp(boolean v) { this.launchApp = v; }
     public void setDownloadUrl(String v) { this.downloadUrl = v; }
 }

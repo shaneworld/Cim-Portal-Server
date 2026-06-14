@@ -13,7 +13,7 @@ public final class LinkTestFactory {
         return l;
     }
 
-    public static Link newLink(String nameEn, String categoryCode, LinkEnv env) {
+    public static Link newLink(String nameEn, String categoryCode, String env) {
         Link l = newLink(nameEn, categoryCode);
         l.setEnvironment(env);
         return l;

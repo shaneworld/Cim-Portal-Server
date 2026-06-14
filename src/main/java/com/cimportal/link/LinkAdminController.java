@@ -18,25 +18,25 @@ public class LinkAdminController {
                                    @RequestParam(required = false) String statusCode,
                                    @RequestParam(required = false) String q) {
         return service.search(categoryCode, statusCode, q).stream()
-            .map(l -> LinkResponse.of(l, List.of())).toList();
+            .map(l -> service.toResponse(l, List.of())).toList();
     }
 
     @GetMapping("/{id}")
     public LinkResponse get(@PathVariable Long id) {
         var l = service.get(id);
         var grants = service.grantsOf(id).stream().map(GrantResponse::of).toList();
-        return LinkResponse.of(l, grants);
+        return service.toResponse(l, grants);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public LinkResponse create(@Valid @RequestBody LinkRequest req) {
-        return LinkResponse.of(service.create(req), List.of());
+        return service.toResponse(service.create(req), List.of());
     }
 
     @PutMapping("/{id}")
     public LinkResponse update(@PathVariable Long id, @Valid @RequestBody LinkRequest req) {
-        return LinkResponse.of(service.update(id, req), List.of());
+        return service.toResponse(service.update(id, req), List.of());
     }
 
     @DeleteMapping("/{id}")

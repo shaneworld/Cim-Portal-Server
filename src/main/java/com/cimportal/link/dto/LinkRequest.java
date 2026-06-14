@@ -1,6 +1,5 @@
 package com.cimportal.link.dto;
 
-import com.cimportal.link.LinkEnv;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 
@@ -13,7 +12,7 @@ public record LinkRequest(
     @NotBlank String statusCode,
     int sortOrder,
     Boolean openInNewTab,
-    LinkEnv environment,
+    String environment,
     Boolean launchApp,
     String downloadUrl
 ) {

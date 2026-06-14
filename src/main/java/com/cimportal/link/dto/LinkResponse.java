@@ -1,7 +1,7 @@
 package com.cimportal.link.dto;
 
+import com.cimportal.enumvalue.EnvBadge;
 import com.cimportal.link.Link;
-import com.cimportal.link.LinkEnv;
 import java.time.Instant;
 import java.util.List;
 
@@ -9,14 +9,15 @@ public record LinkResponse(
     Long id, String nameZh, String nameEn,
     String url, String icon, String categoryCode, String statusCode,
     int sortOrder, boolean openInNewTab,
-    LinkEnv environment,
+    String environment, String envColor, String envLabelZh, String envLabelEn,
     boolean launchApp, String downloadUrl,
     List<GrantResponse> grants, Instant createdAt, Instant updatedAt
 ) {
-    public static LinkResponse of(Link l, List<GrantResponse> grants) {
+    public static LinkResponse of(Link l, List<GrantResponse> grants, EnvBadge env) {
         return new LinkResponse(l.getId(), l.getNameZh(), l.getNameEn(),
             l.getUrl(), l.getIcon(), l.getCategoryCode(), l.getStatusCode(),
-            l.getSortOrder(), l.isOpenInNewTab(), l.getEnvironment(),
+            l.getSortOrder(), l.isOpenInNewTab(),
+            l.getEnvironment(), env.envColor(), env.envLabelZh(), env.envLabelEn(),
             l.isLaunchApp(), l.getDownloadUrl(),
             grants, l.getCreatedAt(), l.getUpdatedAt());
     }

@@ -54,7 +54,8 @@ public class EnumValueService {
     }
 
     private void validateColorForCategory(EnumCategory category, String color) {
-        if (category == EnumCategory.ANNOUNCEMENT_TYPE && color != null && !VALID_COLORS.contains(color))
+        if ((category == EnumCategory.ANNOUNCEMENT_TYPE || category == EnumCategory.LINK_ENV)
+                && color != null && !VALID_COLORS.contains(color))
             throw ApiException.badRequest("颜色 '" + color + "' 无效，允许值: " + VALID_COLORS);
     }
 

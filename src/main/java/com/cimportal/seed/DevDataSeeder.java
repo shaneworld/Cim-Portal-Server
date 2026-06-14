@@ -69,15 +69,15 @@ public class DevDataSeeder implements ApplicationRunner {
         grants.save(new LinkAccessGrant(wip.getId(), GrantType.DEPARTMENT, "FAB1-PROD"));
 
         // SPC Analysis — one link per environment (no grant = visible to all QA_ENGINEER holders)
-        Link spcDev = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 20, "https://spc-dev.example.com", LinkEnv.DEV);
+        Link spcDev = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 20, "https://spc-dev.example.com", "DEV");
         spcDev = links.save(spcDev);
         grants.save(new LinkAccessGrant(spcDev.getId(), GrantType.ROLE, "QA_ENGINEER"));
 
-        Link spcUat = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 21, "https://spc-uat.example.com", LinkEnv.UAT);
+        Link spcUat = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 21, "https://spc-uat.example.com", "UAT");
         spcUat = links.save(spcUat);
         grants.save(new LinkAccessGrant(spcUat.getId(), GrantType.ROLE, "QA_ENGINEER"));
 
-        Link spcRelease = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 22, "https://spc.example.com", LinkEnv.RELEASE);
+        Link spcRelease = makeEnvLink("SPC 分析", "SPC Analysis", "line-chart", "QUALITY", 22, "https://spc.example.com", "RELEASE");
         spcRelease = links.save(spcRelease);
         grants.save(new LinkAccessGrant(spcRelease.getId(), GrantType.ROLE, "QA_ENGINEER"));
 
@@ -98,7 +98,7 @@ public class DevDataSeeder implements ApplicationRunner {
     }
 
     private Link makeEnvLink(String nameZh, String nameEn, String icon,
-                              String category, int sort, String url, LinkEnv env) {
+                              String category, int sort, String url, String env) {
         Link l = new Link(nameZh, nameEn, url, icon, category, "ACTIVE", sort, true);
         l.setEnvironment(env);
         return l;

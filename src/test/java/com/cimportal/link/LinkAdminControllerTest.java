@@ -37,6 +37,12 @@ class LinkAdminControllerTest extends OracleIntegrationTest {
         enums.save(new EnumValue(EnumCategory.LINK_CATEGORY, "QUALITY", "质量", "Quality", 2, true));
         enums.save(new EnumValue(EnumCategory.LINK_STATUS, "ACTIVE", "启用", "Active", 1, true));
         enums.save(new EnumValue(EnumCategory.ROLE, "OPERATOR", "操作员", "Operator", 1, true));
+        EnumValue dev = new EnumValue(EnumCategory.LINK_ENV, "DEV", "开发环境", "DEV", 10, true);
+        dev.setColor("slate");
+        enums.save(dev);
+        EnumValue uat = new EnumValue(EnumCategory.LINK_ENV, "UAT", "测试环境", "UAT", 20, true);
+        uat.setColor("amber");
+        enums.save(uat);
         admin = "Bearer " + jwts.bearerFor("ADMIN1");
     }
 
@@ -75,7 +81,39 @@ class LinkAdminControllerTest extends OracleIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(linkBody))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.url").value("https://spc-uat.example.com"))
-            .andExpect(jsonPath("$.environment").value("UAT"));
+            .andExpect(jsonPath("$.environment").value("UAT"))
+            // env presentation inlined from LINK_ENV enum_value
+            .andExpect(jsonPath("$.envColor").value("amber"))
+            .andExpect(jsonPath("$.envLabelEn").value("UAT"))
+            .andExpect(jsonPath("$.envLabelZh").value("测试环境"));
+    }
+
+    @Test
+    void createLinkWithEnvironmentDevInlinesEnvColor() throws Exception {
+        String linkBody = "{\"nameZh\":\"开发\",\"nameEn\":\"Dev Link\"," +
+            "\"url\":\"https://dev.example.com\"," +
+            "\"icon\":\"chart\",\"categoryCode\":\"MES\"," +
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":5," +
+            "\"environment\":\"DEV\"}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(linkBody))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.environment").value("DEV"))
+            .andExpect(jsonPath("$.envColor").value("slate"))
+            .andExpect(jsonPath("$.envLabelEn").value("DEV"));
+    }
+
+    @Test
+    void createLinkWithoutEnvironmentHasNullEnvFields() throws Exception {
+        String linkBody = "{\"nameZh\":\"无环境\",\"nameEn\":\"No Env\"," +
+            "\"url\":\"https://x\",\"icon\":\"factory\",\"categoryCode\":\"MES\"," +
+            "\"statusCode\":\"ACTIVE\",\"sortOrder\":1}";
+        mvc.perform(post("/api/admin/links").header("Authorization", admin)
+                .contentType(MediaType.APPLICATION_JSON).content(linkBody))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.environment").isEmpty())
+            .andExpect(jsonPath("$.envColor").isEmpty())
+            .andExpect(jsonPath("$.envLabelEn").isEmpty());
     }
 
     @Test
