@@ -1,5 +1,6 @@
 package com.cimportal.setting;
 
+import com.cimportal.lark.LarkTokenCache;
 import com.cimportal.setting.dto.AdminSettingView;
 import com.cimportal.setting.dto.PublicConfig;
 import com.cimportal.setting.dto.SecuritySettingUpdateRequest;
@@ -16,13 +17,16 @@ public class SecuritySettingService {
 
     private final SecuritySettingRepository repo;
     private final PasswordEncoder encoder;
+    private final LarkTokenCache larkTokenCache;
 
     /** In-memory cache of the single row. Refreshed on write. */
     private volatile SecuritySetting cached;
 
-    public SecuritySettingService(SecuritySettingRepository repo, PasswordEncoder encoder) {
+    public SecuritySettingService(SecuritySettingRepository repo, PasswordEncoder encoder,
+                                  LarkTokenCache larkTokenCache) {
         this.repo = repo;
         this.encoder = encoder;
+        this.larkTokenCache = larkTokenCache;
     }
 
     /** Load from cache or DB. */
@@ -110,6 +114,8 @@ public class SecuritySettingService {
         synchronized (this) {
             cached = saved;
         }
+        // drop any cached Lark token in case credentials changed
+        larkTokenCache.clear();
 
         return adminView();
     }
