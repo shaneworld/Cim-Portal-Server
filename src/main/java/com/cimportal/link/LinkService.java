@@ -2,6 +2,7 @@ package com.cimportal.link;
 
 import com.cimportal.common.error.ApiException;
 import com.cimportal.enumvalue.EnumCategory;
+import com.cimportal.enumvalue.EnumValue;
 import com.cimportal.enumvalue.EnumValueRepository;
 import com.cimportal.enumvalue.EnvBadge;
 import com.cimportal.group.PermissionGroupRepository;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class LinkService {
@@ -69,6 +72,21 @@ public class LinkService {
     @Transactional(readOnly = true)
     public LinkResponse toResponse(Link l, List<GrantResponse> grants) {
         return LinkResponse.of(l, grants, EnvBadge.resolve(enums, l.getEnvironment()));
+    }
+
+    /**
+     * Builds admin responses for a list of links, prefetching the LINK_ENV enum map
+     * once to avoid an N+1 query per link. Grants are omitted (admin list shows none).
+     */
+    @Transactional(readOnly = true)
+    public List<LinkResponse> toResponseList(List<Link> list) {
+        Map<String, EnumValue> envValues = enums
+            .findByCategoryOrderBySortOrderAscIdAsc(EnumCategory.LINK_ENV)
+            .stream().collect(Collectors.toMap(EnumValue::getCode, e -> e, (a, b) -> a));
+        return list.stream()
+            .map(l -> LinkResponse.of(l, List.of(),
+                EnvBadge.from(envValues.get(l.getEnvironment()), l.getEnvironment())))
+            .toList();
     }
 
     @Transactional

@@ -17,8 +17,7 @@ public class LinkAdminController {
     public List<LinkResponse> list(@RequestParam(required = false) String categoryCode,
                                    @RequestParam(required = false) String statusCode,
                                    @RequestParam(required = false) String q) {
-        return service.search(categoryCode, statusCode, q).stream()
-            .map(l -> service.toResponse(l, List.of())).toList();
+        return service.toResponseList(service.search(categoryCode, statusCode, q));
     }
 
     @GetMapping("/{id}")

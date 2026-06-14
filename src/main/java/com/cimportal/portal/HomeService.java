@@ -58,13 +58,17 @@ public class HomeService {
             .findByCategoryOrderBySortOrderAscIdAsc(EnumCategory.LINK_CATEGORY)
             .stream().collect(Collectors.toMap(EnumValue::getCode, e -> e, (a, b) -> a, LinkedHashMap::new));
 
+        Map<String, EnumValue> envValues = enums
+            .findByCategoryOrderBySortOrderAscIdAsc(EnumCategory.LINK_ENV)
+            .stream().collect(Collectors.toMap(EnumValue::getCode, e -> e, (a, b) -> a, LinkedHashMap::new));
+
         Map<String, List<HomeLink>> byCategory = new LinkedHashMap<>();
         categoryLabels.keySet().forEach(code -> byCategory.put(code, new ArrayList<>()));
 
         for (Link l : all) {
             var g = grantsByLink.getOrDefault(l.getId(), List.of());
             boolean accessible = PermissionResolver.isVisible(user.departmentCode(), user.roleCode(), groupCodes, g);
-            EnvBadge env = EnvBadge.resolve(enums, l.getEnvironment());
+            EnvBadge env = EnvBadge.from(envValues.get(l.getEnvironment()), l.getEnvironment());
             byCategory.computeIfAbsent(l.getCategoryCode(), k -> new ArrayList<>())
                 .add(new HomeLink(l.getId(), l.getNameZh(), l.getNameEn(),
                     accessible ? l.getUrl() : null, l.getIcon(), l.getStatusCode(),

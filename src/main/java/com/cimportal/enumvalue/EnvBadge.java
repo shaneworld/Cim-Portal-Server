@@ -11,7 +11,16 @@ public record EnvBadge(String envColor, String envLabelZh, String envLabelEn) {
     /** Resolves color + labels for a LINK_ENV code, falling back to "slate"/code when missing. */
     public static EnvBadge resolve(EnumValueRepository repo, String code) {
         if (code == null || code.isBlank()) return EMPTY;
-        EnumValue ev = repo.findByCategoryAndCode(EnumCategory.LINK_ENV, code).orElse(null);
+        return from(repo.findByCategoryAndCode(EnumCategory.LINK_ENV, code).orElse(null), code);
+    }
+
+    /**
+     * Builds a badge from an already-fetched EnumValue (e.g. from a prefetched map),
+     * falling back to "slate"/code when the EnumValue is missing. Returns EMPTY when
+     * both the EnumValue and code are absent.
+     */
+    public static EnvBadge from(EnumValue ev, String code) {
+        if (ev == null && (code == null || code.isBlank())) return EMPTY;
         String color   = ev != null && ev.getColor() != null ? ev.getColor() : "slate";
         String labelZh = ev != null ? ev.getLabelZh() : code;
         String labelEn = ev != null ? ev.getLabelEn() : code;
