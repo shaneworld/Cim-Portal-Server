@@ -52,6 +52,11 @@ class LarkSettingsControllerTest extends OracleIntegrationTest {
         // anonymous → 401
         mvc.perform(get("/api/admin/lark-settings"))
             .andExpect(status().isUnauthorized());
+
+        // non-admin → 403
+        mvc.perform(get("/api/admin/lark-settings")
+                .header("Authorization", "Bearer " + jwts.bearerFor("OP1")))
+            .andExpect(status().isForbidden());
     }
 
     @Test
