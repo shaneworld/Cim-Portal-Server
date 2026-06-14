@@ -39,7 +39,7 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/swagger-ui.html", "/swagger-ui/**",
-                                 "/v3/api-docs/**", AppConstants.Paths.DEV_TOKEN,
+                                 "/v3/api-docs/**", "/architecture.html", AppConstants.Paths.DEV_TOKEN,
                                  AppConstants.Paths.PORTAL_CONFIG,
                                  AppConstants.Auth.LOGIN_PATH).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/icons/**").permitAll()
