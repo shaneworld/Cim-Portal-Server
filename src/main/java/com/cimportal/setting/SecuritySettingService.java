@@ -1,11 +1,8 @@
 package com.cimportal.setting;
 
-import com.cimportal.lark.LarkTokenCache;
 import com.cimportal.setting.dto.AdminSettingView;
 import com.cimportal.setting.dto.DutySettingsUpdateRequest;
 import com.cimportal.setting.dto.DutySettingsView;
-import com.cimportal.setting.dto.LarkSettingsUpdateRequest;
-import com.cimportal.setting.dto.LarkSettingsView;
 import com.cimportal.setting.dto.PublicConfig;
 import com.cimportal.setting.dto.SecuritySettingUpdateRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,16 +18,13 @@ public class SecuritySettingService {
 
     private final SecuritySettingRepository repo;
     private final PasswordEncoder encoder;
-    private final LarkTokenCache larkTokenCache;
 
     /** In-memory cache of the single row. Refreshed on write. */
     private volatile SecuritySetting cached;
 
-    public SecuritySettingService(SecuritySettingRepository repo, PasswordEncoder encoder,
-                                  LarkTokenCache larkTokenCache) {
+    public SecuritySettingService(SecuritySettingRepository repo, PasswordEncoder encoder) {
         this.repo = repo;
         this.encoder = encoder;
-        this.larkTokenCache = larkTokenCache;
     }
 
     /** Load from cache or DB. */
@@ -48,7 +42,6 @@ public class SecuritySettingService {
 
     public PublicConfig publicView() {
         SecuritySetting s = get();
-        boolean larkEnabled = nb(s.getLarkAppId()) && nb(s.getLarkAppSecret()) && nb(s.getLarkReceiverId());
         return new PublicConfig(
             s.isSsoEnabled(),
             s.getSsoIssuerUri(),
@@ -56,8 +49,7 @@ public class SecuritySettingService {
             s.getSsoScopes(),
             s.getSsoUsernameClaim(),
             s.isInfoPanelEnabled(),
-            s.isHeroEnabled(),
-            larkEnabled
+            s.isHeroEnabled()
         );
     }
 
@@ -104,39 +96,6 @@ public class SecuritySettingService {
         }
 
         return dutySettingsView();
-    }
-
-    public LarkSettingsView larkSettingsView() {
-        SecuritySetting s = get();
-        return new LarkSettingsView(
-            s.getLarkBaseUrl(),
-            s.getLarkAppId(),
-            s.getLarkReceiverId(),
-            s.getLarkReceiverIdType(),
-            nb(s.getLarkAppSecret())
-        );
-    }
-
-    @Transactional
-    public LarkSettingsView updateLarkSettings(LarkSettingsUpdateRequest req) {
-        SecuritySetting s = repo.findById(SINGLETON_ID)
-            .orElseThrow(() -> new IllegalStateException("security_setting row missing"));
-
-        if (req.larkBaseUrl() != null) s.setLarkBaseUrl(req.larkBaseUrl().isBlank() ? null : req.larkBaseUrl());
-        if (req.larkAppId() != null) s.setLarkAppId(req.larkAppId().isBlank() ? null : req.larkAppId());
-        if (req.larkReceiverId() != null) s.setLarkReceiverId(req.larkReceiverId().isBlank() ? null : req.larkReceiverId());
-        if (req.larkReceiverIdType() != null) s.setLarkReceiverIdType(req.larkReceiverIdType().isBlank() ? null : req.larkReceiverIdType());
-        // null = keep existing secret; blank = clear
-        if (req.larkAppSecret() != null) s.setLarkAppSecret(req.larkAppSecret().isBlank() ? null : req.larkAppSecret());
-        s.setUpdatedAt(Instant.now());
-        SecuritySetting saved = repo.save(s);
-
-        synchronized (this) {
-            cached = saved;
-        }
-        larkTokenCache.clear();
-
-        return larkSettingsView();
     }
 
     @Transactional

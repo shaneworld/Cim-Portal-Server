@@ -7,6 +7,5 @@ public record PublicConfig(
     String scopes,
     String usernameClaim,
     boolean infoPanelEnabled,
-    boolean heroEnabled,
-    boolean larkEnabled
+    boolean heroEnabled
 ) { }

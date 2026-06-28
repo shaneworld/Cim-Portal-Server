@@ -45,11 +45,6 @@ class SecuritySettingControllerTest extends OracleIntegrationTest {
         s.setHeroEnabled(true);
         s.setDutyApiBaseUrl(null);
         s.setDutyApiKey(null);
-        s.setLarkBaseUrl(null);
-        s.setLarkAppId(null);
-        s.setLarkAppSecret(null);
-        s.setLarkReceiverId(null);
-        s.setLarkReceiverIdType(null);
         s.setUpdatedAt(null);
         settingRepo.save(s);
 

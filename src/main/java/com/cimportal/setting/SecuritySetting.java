@@ -40,21 +40,6 @@ public class SecuritySetting {
     @Column(name = "duty_api_key", length = 512)
     private String dutyApiKey;
 
-    @Column(name = "lark_base_url", length = 512)
-    private String larkBaseUrl;
-
-    @Column(name = "lark_app_id", length = 255)
-    private String larkAppId;
-
-    @Column(name = "lark_app_secret", length = 512)
-    private String larkAppSecret;
-
-    @Column(name = "lark_receiver_id", length = 255)
-    private String larkReceiverId;
-
-    @Column(name = "lark_receiver_id_type", length = 16)
-    private String larkReceiverIdType;
-
     @Column(name = "updated_at")
     private Instant updatedAt;
 
@@ -71,11 +56,6 @@ public class SecuritySetting {
     public boolean isHeroEnabled() { return heroEnabled; }
     public String getDutyApiBaseUrl() { return dutyApiBaseUrl; }
     public String getDutyApiKey() { return dutyApiKey; }
-    public String getLarkBaseUrl() { return larkBaseUrl; }
-    public String getLarkAppId() { return larkAppId; }
-    public String getLarkAppSecret() { return larkAppSecret; }
-    public String getLarkReceiverId() { return larkReceiverId; }
-    public String getLarkReceiverIdType() { return larkReceiverIdType; }
     public Instant getUpdatedAt() { return updatedAt; }
 
     public void setSsoEnabled(boolean ssoEnabled) { this.ssoEnabled = ssoEnabled; }
@@ -88,10 +68,5 @@ public class SecuritySetting {
     public void setHeroEnabled(boolean heroEnabled) { this.heroEnabled = heroEnabled; }
     public void setDutyApiBaseUrl(String dutyApiBaseUrl) { this.dutyApiBaseUrl = dutyApiBaseUrl; }
     public void setDutyApiKey(String dutyApiKey) { this.dutyApiKey = dutyApiKey; }
-    public void setLarkBaseUrl(String larkBaseUrl) { this.larkBaseUrl = larkBaseUrl; }
-    public void setLarkAppId(String larkAppId) { this.larkAppId = larkAppId; }
-    public void setLarkAppSecret(String larkAppSecret) { this.larkAppSecret = larkAppSecret; }
-    public void setLarkReceiverId(String larkReceiverId) { this.larkReceiverId = larkReceiverId; }
-    public void setLarkReceiverIdType(String larkReceiverIdType) { this.larkReceiverIdType = larkReceiverIdType; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }
