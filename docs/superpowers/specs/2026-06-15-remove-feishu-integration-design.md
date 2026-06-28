@@ -69,10 +69,11 @@ ALTER TABLE security_setting DROP (
 - `src/lib/api/portal.ts`:删除 `requestAccess`、`sendFeedback`;`PortalConfig` 删除 `larkEnabled?`。
 
 ### 仪表盘(访问申请回退)
-- `SystemCard.vue`:`defineEmits` 删除 `'access-request'`;`onClick` 锁定分支改为复用既有 `blocked` 通道:`if (locked.value) { e.preventDefault(); emit('blocked', props.link); return }`。(其余 `blocked`/`favorite-changed` 不变;`<a>` 的 `title=noAccessHint`、`cursor-not-allowed` 保留。)
-- `SystemGrid.vue`:`defineEmits` 删除 `'access-request'`;`<SystemCard>` 删除 `@access-request` 透传(保留 `@blocked="onBlocked"`、`@favorite-changed`)。
-- `HomeView.vue`:删除 `AccessRequestModal` import 与模板挂载、`arOpen`/`arLink`、`onAccessRequest`、`SystemGrid` 上的 `@access-request`。在 `onBlocked(l)` 中按可达性给出文案:不可达(`!l.accessible`)→ `toast.push({type:'info', message:t('dashboard.noAccessHint')})`;否则维持现有(非 ACTIVE 链接)的提示文案。`toast`/`config` 等若仍被他处使用则保留,否则清理未用 import。
-- 净效果:无权限链接点击 → 信息提示「无访问权限」,无弹窗。
+> 注意:既有 `blocked` 事件由 `SystemGrid.onBlocked` 处理——弹「维护/停用」确认框并提供「仍要打开」操作,语义与「无权限」不同(无权限**不应**提供继续打开)。因此锁定点击不复用 `blocked`,而由卡片**直接弹信息提示**。
+- `SystemCard.vue`:`defineEmits` 删除 `'access-request'`(保留 `blocked`、`favorite-changed`)。引入 `useToastStore`;`onClick` 锁定分支改为直接提示:`if (locked.value) { e.preventDefault(); toast.push({ type: 'info', message: t('dashboard.noAccessHint') }); return }`(`t` 已由 `useLocale` 提供;`<a>` 的 `title=noAccessHint`、`cursor-not-allowed`、`opacity-60` 保留)。
+- `SystemGrid.vue`:`defineEmits` 删除 `'access-request'`;`<SystemCard>` 删除 `@access-request` 透传(保留 `@blocked="onBlocked"`、`@favorite-changed`)。`onBlocked`/确认框(维护/停用)**不变**。
+- `HomeView.vue`:删除 `AccessRequestModal` import 与模板挂载、`arOpen`/`arLink`、`onAccessRequest`、`SystemGrid` 上的 `@access-request`;清理因此不再使用的 import(如 `useToastStore`/`config` 若 HomeView 它处未用,由 `vue-tsc` 提示后移除)。
+- 净效果:无权限链接点击 → 信息提示「无访问权限」,无弹窗、不可继续打开。
 
 ### 页脚反馈
 - `src/lib/ui/SupportBar.vue`:删除 `FeedbackModal` import、`fbOpen`、`v-if="config.larkEnabled"` 的反馈按钮与 `<FeedbackModal>` 挂载;若 `config`/`storeToRefs`/`useConfigStore` 不再使用则清理。
