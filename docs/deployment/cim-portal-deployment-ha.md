@@ -6,32 +6,38 @@
 ## 拓扑总览 / Topology
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{
+  'fontFamily':'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, Microsoft YaHei, sans-serif',
+  'fontSize':'13px','lineColor':'#94a3b8',
+  'primaryColor':'#eef2ff','primaryBorderColor':'#6366f1','primaryTextColor':'#0f172a',
+  'clusterBkg':'#f8fafc','clusterBorder':'#e2e8f0','tertiaryColor':'#ffffff'
+}}}%%
 flowchart TB
-    subgraph users["用户终端 / Clients (公司内网)"]
+    subgraph users["🖥️ 用户终端 / Clients · 公司内网"]
         U["IT / CIM 员工 & 管理员<br/>浏览器 Browser"]
     end
 
-    VIP(["虚拟 IP / Virtual IP — VRRP<br/>portal.example.com 解析到此 VIP<br/><b>:443 HTTPS · :80 → 443</b><br/>Keepalived 在两节点间自动漂移"])
+    VIP(["🌐 虚拟 IP / Virtual IP — VRRP<br/>portal.example.com → VIP<br/><b>:443 HTTPS</b> · :80 → 443<br/>Keepalived 自动漂移"])
 
-    subgraph nodeA["应用服务器 A / App server A — 当前 MASTER"]
+    subgraph nodeA["🟢 应用服务器 A / App server A · MASTER"]
         direction TB
-        NGA["Nginx :443 / :80<br/>SPA 静态托管 + 反向代理 + TLS<br/>Keepalived = MASTER"]
-        BEA["portal.jar — Spring Boot · JRE 21<br/>:8080 (仅 127.0.0.1 本机回环)"]
+        NGA["Nginx · :443 / :80<br/>SPA 静态托管 + 反向代理 + TLS<br/>Keepalived = MASTER"]
+        BEA["portal.jar · Spring Boot · JRE 21<br/>:8080 — 仅 127.0.0.1 本机回环"]
         NGA -->|"本地反代 127.0.0.1:8080"| BEA
     end
 
-    subgraph nodeB["应用服务器 B / App server B — 热备 BACKUP"]
+    subgraph nodeB["🔵 应用服务器 B / App server B · BACKUP"]
         direction TB
-        NGB["Nginx :443 / :80<br/>SPA 静态托管 + 反向代理 + TLS<br/>Keepalived = BACKUP"]
-        BEB["portal.jar — Spring Boot · JRE 21<br/>:8080 (仅 127.0.0.1 本机回环)"]
+        NGB["Nginx · :443 / :80<br/>SPA 静态托管 + 反向代理 + TLS<br/>Keepalived = BACKUP"]
+        BEB["portal.jar · Spring Boot · JRE 21<br/>:8080 — 仅 127.0.0.1 本机回环"]
         NGB -->|"本地反代 127.0.0.1:8080"| BEB
     end
 
-    subgraph dbhost["数据库服务器 / Database host"]
-        OR[("Oracle Database<br/><b>:1521</b> (TCP · JDBC thin)<br/>service 例 XEPDB1<br/>单实例 — 见 HA 说明")]
+    subgraph dbhost["🗄️ 数据库服务器 / Database host"]
+        OR[("Oracle Database<br/><b>:1521</b> · TCP · JDBC thin<br/>service 例 XEPDB1<br/>单实例 — 见 HA 说明")]
     end
 
-    ext["外部依赖(出站) / External (outbound)<br/>OIDC IdP :443 · 飞书 open.feishu.cn :443 · 值班 API :443/:80"]
+    ext["☁️ 外部依赖(出站) / External (outbound)<br/>OIDC IdP :443 · 值班 API :443/:80"]
 
     U ==>|"HTTPS :443 → VIP"| VIP
     VIP -. "VIP 绑定在当前 MASTER" .-> NGA
@@ -41,6 +47,24 @@ flowchart TB
     BEB ==>|"JDBC :1521"| OR
     BEA -->|"出站 :443"| ext
     BEB -->|"出站 :443"| ext
+
+    classDef client fill:#f1f5f9,stroke:#cbd5e1,stroke-width:1px,color:#334155;
+    classDef vip fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a;
+    classDef web fill:#eef2ff,stroke:#6366f1,stroke-width:1.5px,color:#1e1b4b;
+    classDef app fill:#ecfdf5,stroke:#10b981,stroke-width:1.5px,color:#064e3b;
+    classDef db fill:#fff7ed,stroke:#f59e0b,stroke-width:1.5px,color:#7c2d12;
+    classDef extn fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px,color:#475569;
+    class U client;
+    class VIP vip;
+    class NGA,NGB web;
+    class BEA,BEB app;
+    class OR db;
+    class ext extn;
+    style users fill:#ffffff,stroke:#e2e8f0,color:#475569;
+    style nodeA fill:#f0fdf4,stroke:#bbf7d0,color:#166534;
+    style nodeB fill:#eff6ff,stroke:#bfdbfe,color:#1e40af;
+    style dbhost fill:#fffbeb,stroke:#fde68a,color:#92400e;
+    linkStyle default stroke:#94a3b8,stroke-width:1.4px;
 ```
 
 **一句话:** 用户通过 **HTTPS 443** 访问一个**虚拟 IP(VIP)**;VIP 由 Keepalived 绑定在当前主节点(A)。两台**完全相同**的应用服务器各自运行 Nginx(供 SPA + 反代)与 `portal.jar`(本机 8080),都连同一个 **Oracle(1521)**。主节点故障时,Keepalived 通过 VRRP 心跳检测并把 VIP **自动漂移**到备节点(B),服务不中断。后端是**无状态 JWT** 资源服务器(无服务器端会话),因此任一节点都能处理任意请求,故障切换不丢登录态。
@@ -76,7 +100,6 @@ flowchart TB
 | 目标 To | 端口 | 协议 | 何时 When |
 |---|---|---|---|
 | OIDC IdP (issuer) | **443** | HTTPS | 登录令牌校验(`prod` = oidc),拉取 JWKS |
-| `open.feishu.cn` | **443** | HTTPS | 管理员启用飞书后:访问申请 / 反馈 |
 | 值班系统 API | **443 / 80** | HTTP(S) | 管理员配置值班接口后 |
 
 ---
@@ -87,7 +110,7 @@ flowchart TB
 - **两台 App 之间**:放行 **VRRP(IP 协议 112,组播 224.0.0.18)** 供 Keepalived 心跳。
 - **App → DB**:两台服务器均放行 **1521** 到 Oracle 主机。
 - **8080**:每台机器仅 `127.0.0.1`,**不在服务器之间、也不对用户开放**。
-- **App 出站**:**443**(IdP、飞书)及值班 API 端口(无外网出口时,飞书/值班为可选功能,可不放行)。
+- **App 出站**:**443**(OIDC IdP)及值班 API 端口(无外网出口时,值班为可选功能,可不放行)。
 
 ---
 
@@ -95,7 +118,7 @@ flowchart TB
 
 - **应用层冗余**:A、B 两台**配置完全一致**(相同 SPA 构建产物、相同 `portal.jar`、相同环境变量 `DB_URL`/`DB_USER`/`DB_PASSWORD` 与 SSO issuer/clientId)。任一台宕机,VIP 漂移到另一台,服务继续。
 - **无状态后端**:`portal.jar` 是 OAuth2/JWT 资源服务器,登录态在浏览器持有的 JWT 中,服务器端不存会话 → **无需会话粘滞(sticky session)**,故障切换对用户透明。
-- **共享配置在库**:飞书 App Secret、值班 API Key 等运行时配置存于**同一个 Oracle**,两节点读到一致,无需在两台之间同步密钥文件。
+- **共享配置在库**:值班 API Key 等运行时配置存于**同一个 Oracle**,两节点读到一致,无需在两台之间同步密钥文件。
 - **active-passive(默认)**:VIP 只在 MASTER 上对外;BACKUP 热备待命。若需 **active-active(两台同时分担流量)**,可改为两个 VIP 互为主备,或由公司负载均衡器做轮询 —— 因后端无状态,两种皆可。
 - **唯一单点 = Oracle**:本方案使**应用层**高可用,但 **Oracle 为单实例,是剩余单点故障(SPOF)**。如需端到端 HA,需另行采用 Oracle **Data Guard / RAC**(超出"单个 Oracle 数据库"范围,建议 CNO 评估)。
 - **若已有企业负载均衡器(F5 等)**:可省去 Keepalived/VIP,直接由该 LB 在 A、B 两台的 443 之间转发并做健康检查(`GET /actuator/health`)。本图的 VIP 层即被该 LB 取代。
@@ -104,7 +127,7 @@ flowchart TB
 
 ## 部署步骤(增量于单节点版) / Deployment steps
 
-1. **Oracle**:建用户/Schema `cim_portal` 并授权;记录 service 名。Flyway 首启自动建表(当前 V19)。
+1. **Oracle**:建用户/Schema `cim_portal` 并授权;记录 service 名。Flyway 首启自动建表(当前 V20)。
 2. **两台 App 服务器**(A、B)各自:安装 **JRE 21** + **Nginx** + **Keepalived**;部署相同的 `portal.jar`(env: `DB_URL`/`DB_USER`/`DB_PASSWORD`,`--spring.profiles.active=prod`,绑定 `127.0.0.1:8080`);将 SPA `dist/` 放 `/var/www/cim-portal`;套用 Nginx 配置(见单节点版《cim-portal-deployment.md》的 server 块,含 gzip/http2/缓存)。
 3. **Keepalived**:A 设 `state MASTER priority 110`,B 设 `state BACKUP priority 100`,共享同一 `virtual_router_id` 与 `virtual_ipaddress`(VIP);`auth_pass` 一致;建议加 `vrrp_script` 检测本机 Nginx/8080 健康,失败则降权触发漂移。
 4. **DNS**:`portal.example.com` 指向 **VIP**。

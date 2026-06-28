@@ -6,35 +6,57 @@
 ## 拓扑总览 / Topology
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{
+  'fontFamily':'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, Microsoft YaHei, sans-serif',
+  'fontSize':'13px','lineColor':'#94a3b8',
+  'primaryColor':'#eef2ff','primaryBorderColor':'#6366f1','primaryTextColor':'#0f172a',
+  'clusterBkg':'#f8fafc','clusterBorder':'#e2e8f0','tertiaryColor':'#ffffff'
+}}}%%
 flowchart LR
-    subgraph users["用户终端 / Clients (内网 intranet)"]
+    subgraph users["🖥️ 用户终端 / Clients · 内网"]
         U["IT / CIM 员工 & 管理员<br/>浏览器 Browser"]
     end
 
-    subgraph app["应用服务器(单节点) / Application server — single node<br/>Linux · JRE 21"]
+    subgraph app["🖧 应用服务器(单节点) / App server · Linux · JRE 21"]
         direction TB
-        NG["Nginx — 反向代理 + SPA 静态托管<br/>Reverse proxy + static SPA host<br/>:443 HTTPS (TLS 终止) · :80 → 跳转 443"]
-        SPA["Vue SPA 静态文件 / built static assets<br/>/var/www/cim-portal (dist)"]
-        BE["portal.jar — Spring Boot 3.3<br/>profile=prod<br/>:8080 (仅监听 127.0.0.1 / loopback only)"]
-        NG -.->|"/  →  静态资源 static files"| SPA
-        NG -->|"反代 proxy_pass · HTTP 127.0.0.1:8080<br/>/api  /actuator  /architecture.html"| BE
+        NG["Nginx — 反向代理 + SPA 静态托管<br/>:443 HTTPS (TLS 终止) · :80 → 443"]
+        SPA["Vue SPA 静态文件 / static assets<br/>/var/www/cim-portal (dist)"]
+        BE["portal.jar · Spring Boot 3.3 · profile=prod<br/>:8080 — 仅 127.0.0.1 loopback"]
+        NG -.->|"/  →  静态资源"| SPA
+        NG -->|"反代 127.0.0.1:8080<br/>/api · /actuator · /architecture.html"| BE
     end
 
-    subgraph dbhost["数据库服务器 / Database host"]
-        OR[("Oracle Database<br/>service e.g. XEPDB1<br/>:1521 (TCP · JDBC thin)")]
+    subgraph dbhost["🗄️ 数据库服务器 / Database host"]
+        OR[("Oracle Database<br/>service 例 XEPDB1<br/><b>:1521</b> · TCP · JDBC thin")]
     end
 
-    subgraph ext["外部依赖(出站) / External dependencies (outbound)"]
-        IDP["SSO / OIDC IdP<br/>(Keycloak 等)<br/>:443 — JWT 校验 (JWKS)"]
-        LARK["飞书 Feishu API<br/>open.feishu.cn :443"]
-        DUTY["值班系统 API / Duty API<br/>(base URL 可配置)"]
+    subgraph ext["☁️ 外部依赖(出站) / External (outbound)"]
+        IDP["SSO / OIDC IdP（Keycloak 等）<br/>:443 — JWT 校验 (JWKS)"]
+        DUTY["值班系统 API / Duty API<br/>:443/:80 — base URL 可配置"]
     end
 
     U ==>|"HTTPS :443"| NG
     BE ==>|"JDBC :1521<br/>DB_URL / DB_USER / DB_PASSWORD"| OR
     BE -->|"出站 :443 — 验证登录令牌"| IDP
-    BE -->|"出站 :443 — 访问申请/反馈"| LARK
     BE -->|"出站 :443/:80 — 值班数据"| DUTY
+
+    classDef client fill:#f1f5f9,stroke:#cbd5e1,stroke-width:1px,color:#334155;
+    classDef web fill:#eef2ff,stroke:#6366f1,stroke-width:1.5px,color:#1e1b4b;
+    classDef spa fill:#faf5ff,stroke:#a855f7,stroke-width:1.2px,color:#581c87;
+    classDef app fill:#ecfdf5,stroke:#10b981,stroke-width:1.5px,color:#064e3b;
+    classDef db fill:#fff7ed,stroke:#f59e0b,stroke-width:1.5px,color:#7c2d12;
+    classDef extn fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px,color:#475569;
+    class U client;
+    class NG web;
+    class SPA spa;
+    class BE app;
+    class OR db;
+    class IDP,DUTY extn;
+    style users fill:#ffffff,stroke:#e2e8f0,color:#475569;
+    style app fill:#f0fdf4,stroke:#bbf7d0,color:#166534;
+    style dbhost fill:#fffbeb,stroke:#fde68a,color:#92400e;
+    style ext fill:#f8fafc,stroke:#e2e8f0,color:#475569;
+    linkStyle default stroke:#94a3b8,stroke-width:1.4px;
 ```
 
 **一句话:** 浏览器经 **HTTPS 443** 访问应用节点的 **Nginx**;Nginx 直接提供 Vue 前端静态文件,并把 `/api` 等动态请求反向代理到本机 **8080** 上的 `portal.jar`;后端经 **JDBC 1521** 连接独立的 **Oracle**。前后端同源,无需 CORS。
@@ -63,7 +85,6 @@ flowchart LR
 |---|---|---|---|---|
 | portal.jar | Oracle DB host | **1521** | TCP / JDBC | 始终 always |
 | portal.jar | OIDC IdP (issuer) | **443** | HTTPS | 登录令牌校验(`prod` = oidc 模式),拉取 JWKS |
-| portal.jar | `open.feishu.cn` | **443** | HTTPS | 管理员启用飞书后:访问申请 / 意见反馈 |
 | portal.jar | 值班系统 API | **443 / 80** | HTTP(S) | 管理员配置值班接口后:拉取当班数据 |
 
 ---
@@ -73,7 +94,7 @@ flowchart LR
 - **入站到应用节点**:仅放行 **443**(及可选 **80**)来自用户网段。其余一律拒绝。
 - **8080 / 1521 不对用户开放**:8080 仅 loopback;1521 仅应用节点 → DB host。
 - **应用节点 → 数据库节点**:放行 **1521**。
-- **应用节点 出站**:放行 **443**(IdP、飞书)与值班 API 端口;如内网无外网出口,飞书/值班为可选功能,可不放行(届时这两项功能不可用,核心门户不受影响)。
+- **应用节点 出站**:放行 **443**(OIDC IdP)与值班 API 端口;如内网无外网出口,值班为可选功能,可不放行(届时该功能不可用,核心门户不受影响)。
 
 ---
 
@@ -85,14 +106,14 @@ flowchart LR
 | 启动 Launch | `java -jar portal.jar --spring.profiles.active=prod` |
 | Profile | `prod`(真实 OIDC SSO;Swagger 已禁用) |
 | 数据库连接 DB | 环境变量 `DB_URL` = `jdbc:oracle:thin:@//<db-host>:1521/<service>`、`DB_USER`、`DB_PASSWORD` |
-| 数据库迁移 Migrations | Flyway 启动时自动执行(当前 schema 版本 **V19**),`ddl-auto=validate` |
+| 数据库迁移 Migrations | Flyway 启动时自动执行(当前 schema 版本 **V20**),`ddl-auto=validate` |
 | 健康检查 Health | `GET /actuator/health` → `{"status":"UP"}` |
 | 上传限制 Upload | 单文件 / 请求 ≤ **1MB**(图标上传) |
 | SSO 配置 | `prod` 为 `oidc` 模式;issuer / clientId 由管理员在门户 **SSO** 页配置 |
-| 飞书 / 值班凭据 Lark/Duty | **不是环境变量**;运行时由管理员在门户「飞书」「值班电话→接口设置」页填写,加密/掩码存于 DB |
+| 值班凭据 Duty | **不是环境变量**;运行时由管理员在门户「值班电话 → 接口设置」页填写,加密/掩码存于 DB |
 
-> 机密(DB 密码经环境变量;飞书 App Secret、值班 API Key 存库且永不回传浏览器)。
-> Secrets: DB password via env; Feishu app secret & duty API key are stored in the DB and never returned to the browser.
+> 机密(DB 密码经环境变量;值班 API Key 存库且永不回传浏览器)。
+> Secrets: DB password via env; the duty API key is stored in the DB and never returned to the browser.
 
 ---
 
@@ -173,7 +194,7 @@ server {                                        # 80 → 443 跳转(可选)
 3. **后端**:部署 `portal.jar`;设置环境变量 `DB_URL` / `DB_USER` / `DB_PASSWORD`;以 `systemd` 服务运行 `--spring.profiles.active=prod`,绑定 `127.0.0.1:8080`。
 4. **前端**:`npm run build` 产出 `dist/`,放到 `/var/www/cim-portal`;套用上面的 Nginx 配置(`VITE_API_BASE_URL` 留空 → 前端按相对路径 `/api` 调用,实现同源)。
 5. **TLS**:在 Nginx 443 配置证书。
-6. **首启**:启动后端 → Flyway 自动迁移至 V19;用管理员账号登录门户,在 **SSO / 飞书 / 值班电话** 页填写各自配置。
+6. **首启**:启动后端 → Flyway 自动迁移至 V20;用管理员账号登录门户,在 **SSO / 值班电话** 页填写各自配置。
 7. **验证**:`curl -k https://<host>/actuator/health` 返回 `UP`;浏览器打开门户登录正常。
 
 ---
